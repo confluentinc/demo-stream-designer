@@ -9,6 +9,8 @@ In order to successfully complete this demo you need to install few tools before
 - This demo assumes you have Confluent Cloud setup and available to use. If you don't, sign up for a free trial [here](https://www.confluent.io/confluent-cloud/tryfree).
 - Install Confluent Cloud CLI by following the instructions [here](https://docs.confluent.io/confluent-cli/current/install.html).
 - An AWS account with permissions to create resources. Sign up for an account [here](https://aws.amazon.com/account/).
+- (Optional) Install a database tool. This demo uses [DBeaver Community](https://dbeaver.io/).
+- This demo uses Python 3.9.13 version.
 
 > **Note:** This demo was built and validate on a Mac (x86).
 
@@ -63,7 +65,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Navigate to https://aws.amazon.com/console/ and log into your account.
 1. Search for **RDS** and click on results.
 1. Click on **Create database** and create an Microsoft SQL Server database using the following configurations and leave everything else as default.
-   ```bash
+   ```
    Creation mode: Standard
    Engine: Microsoft SQL Server
    Database management type: Amazon RDS
@@ -78,6 +80,18 @@ In order to successfully complete this demo you need to install few tools before
    Public access: Yes
    ```
 1. If you opted in using an auto-generated password, ensure you click on **View credentials details** while the instance is being created to download your password.
+1. Update `configure_sqlserver.py` so the following values correspond to your database.
+
+   ```
+   server = '<DB_ENDPOINT>'
+   database = 'public'
+   username = '<DB_USERNAME>'
+   password = '<DB_PASSWORD>'
+
+   ```
+
+1. Download and install Microsoft ODBC driver for your operating system from [here](https://docs.microsoft.com/en-us/sql/connect/odbc/microsoft-odbc-driver-for-sql-server?view=sql-server-ver15).
+
 1. create a database called 'public' and then run this command to enable cdc
    exec msdb.dbo.rds_cdc_enable_db 'public'
    this will create a cdc schema
