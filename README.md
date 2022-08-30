@@ -2,9 +2,19 @@
 
 Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, Stream Sharing, and Stream Catalog.
 
-## Setup
+## Requirements
 
-## Set up Confluent Cloud
+In order to successfully complete this demo you need to install few tools before getting started.
+
+- This demo assumes you have Confluent Cloud setup and available to use. If you don't, sign up for a free trial [here](https://www.confluent.io/confluent-cloud/tryfree).
+- Install Confluent Cloud CLI by following the instructions [here](https://docs.confluent.io/confluent-cli/current/install.html).
+- An AWS account with permissions to create resources. Sign up for an account [here](https://aws.amazon.com/account/).
+
+> **Note:** This demo was built and validate on a Mac (x86).
+
+## Prerequisites
+
+### Set up Confluent Cloud
 
 1. Sign up for a Confluent Cloud account [here](https://www.confluent.io/get-started/).
 1. After verifying your email address, access Confluent Cloud sign-in by navigating [here](https://confluent.cloud).
@@ -23,7 +33,7 @@ Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, 
 
    > **Note**: Confluent Cloud clusters are available in 3 types: **Basic**, **Standard**, and **Dedicated**. Basic is intended for development use cases so you should use that for this demo. Basic clusters only support single zone availability. Standard and Dedicated clusters are intended for production use and support Multi-zone deployments. If you’re interested in learning more about the different types of clusters and their associated features and limits, refer to this [documentation](https://docs.confluent.io/current/cloud/clusters/cluster-types.html).
 
-   - Choose the **Basic** cluster type.
+   - Choose the **Dedicated** cluster type.
 
    - Click **Begin Configuration**.
 
@@ -31,7 +41,7 @@ Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, 
 
    - Specify a meaningful **Cluster Name** and then review the associated _Configuration & Cost_, _Usage Limits_, and _Uptime SLA_ before clicking **Launch Cluster**.
 
-### Create an API key pair
+#### Create an API key pair
 
 1. Select API keys on the navigation menu.
 1. If this is your first API key within your cluster, click **Create key**. If you have set up API keys in your cluster in the past and already have an existing API key, click **+ Add key**.
@@ -39,14 +49,14 @@ Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, 
 1. Save your API key and secret - you will need these during the demo.
 1. After creating and saving the API key, you will see this API key in the Confluent Cloud UI in the API keys tab. If you don’t see the API key populate right away, refresh the browser.
 
-### Enable Schema Registery
+#### Enable Schema Registery
 
 1. On the navigation menu, select **Schema Registery**.
 1. Click **Set up on my own**.
 1. Choose **AWS** as the cloud provider and a supported **Region**
 1. Click on **Enable Schema Registry**.
 
-## Setup SQL Server
+### Setup SQL Server
 
 1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only Enterprise, Developer, Enterprise Evaluation, and Standard editions, so ensure you choose a configuration that supports CDC.
 1. This demo uses Amazon RDS Microsoft SQL Server that is publicly accessible. If your database is in a VPC, follow the instructions on our [doc](https://docs.confluent.io/cloud/current/networking/peering/aws-peering.html) page.
@@ -68,6 +78,11 @@ Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, 
    Public access: Yes
    ```
 1. If you opted in using an auto-generated password, ensure you click on **View credentials details** while the instance is being created to download your password.
+1. create a database called 'public' and then run this command to enable cdc
+   exec msdb.dbo.rds_cdc_enable_db 'public'
+   this will create a cdc schema
+   download the driver for Mac
+   https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15
 
 ## Demo
 
