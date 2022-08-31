@@ -96,7 +96,6 @@ In order to successfully complete this demo you need to install few tools before
    database = 'public'
    username = '<DB_USERNAME>'
    password = '<DB_PASSWORD>'
-
    ```
 
 1. Run `python3 configure_sqlserver.py`.
