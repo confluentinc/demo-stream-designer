@@ -11,6 +11,10 @@ In order to successfully complete this demo you need to install few tools before
 - An AWS account with permissions to create resources. Sign up for an account [here](https://aws.amazon.com/account/).
 - (Optional) Install a database tool. This demo uses [DBeaver Community](https://dbeaver.io/).
 - This demo uses Python 3.9.13 version.
+- This demo uses pyodbc module. You can install this module through `pip`.
+  ```
+  pip3 install pyodbc
+  ```
 
 > **Note:** This demo was built and validate on a Mac (x86).
 
@@ -80,6 +84,11 @@ In order to successfully complete this demo you need to install few tools before
    Public access: Yes
    ```
 1. If you opted in using an auto-generated password, ensure you click on **View credentials details** while the instance is being created to download your password.
+
+1. Download and install Microsoft ODBC driver for your operating system from [here](https://docs.microsoft.com/en-us/sql/connect/odbc/microsoft-odbc-driver-for-sql-server?view=sql-server-ver15).
+
+1. You can use DBeaver and connect to your SQL Server and verify that your database is populating correctly in following steps.
+
 1. Update `configure_sqlserver.py` so the following values correspond to your database.
 
    ```
@@ -90,13 +99,11 @@ In order to successfully complete this demo you need to install few tools before
 
    ```
 
-1. Download and install Microsoft ODBC driver for your operating system from [here](https://docs.microsoft.com/en-us/sql/connect/odbc/microsoft-odbc-driver-for-sql-server?view=sql-server-ver15).
-
-1. create a database called 'public' and then run this command to enable cdc
-   exec msdb.dbo.rds_cdc_enable_db 'public'
-   this will create a cdc schema
-   download the driver for Mac
-   https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15
+1. Run `python3 configure_sqlserver.py`.
+1. This script completes the following task
+   - Creates a database called `public`.
+   - Creates and populates `orders` and `products` tables.
+   - Enables CDC on the database and both tables.
 
 ## Demo
 
