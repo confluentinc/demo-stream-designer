@@ -243,8 +243,50 @@ In order to successfully complete this demo you need to install few tools before
 1. Click on the **Re-activate pipeline** and once the pipeline is activated check to see your MongoDB database is populated correctly.
 
 <div align="center" padding=25px>
-    <img src="StreamDesigner.png" width=100% height=100%>
+    <img src="SD-live4.png" width=100% height=100%>
 </div>
+
+## Code Import
+
+> Note: This section is actively being edited and is not complete.
+
+1. To build the prep work through code editor, start with an empty pipeline and paste the following code in the code editor.
+
+   ```sql
+   CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
+   "after.state.only"='true',
+   "connector.class"='SqlServerCdcSource',
+   "database.dbname"='public',
+   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
+   "database.password"='<SQL_SERVER_PASSWORD>',
+   "database.port"='1433',
+   "database.server.name"='sql',
+   "database.user"='admin',
+   "kafka.api.key"='<KAFKA_API_KEY>',
+   "kafka.api.secret"='<KAFKA_API_SECRET>',
+   "kafka.auth.mode"='KAFKA_API_KEY',
+   "max.batch.size"='1',
+   "output.data.format"='JSON_SR',
+   "output.key.format"='JSON_SR',
+   "poll.interval.ms"='1',
+   "snapshot.mode"='initial',
+   "table.include.list"='dbo.products, dbo.orders',
+   "tasks.max"='1',
+   "transforms"='Transform0',
+   "transforms.Transform0.regex"='sql.dbo.(.*)',
+   "transforms.Transform0.replacement"='sql_dbo_$1',
+   "transforms.Transform0.type"='io.confluent.connect.cloud.transforms.TopicRegexRouter'
+   );
+
+   CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
+   WITH (kafka_topic='sql_dbo_orders', partitions=1, key_format='JSON', value_format='JSON_SR');
+
+   CREATE OR REPLACE STREAM "products_stream" (PRODUCT_ID STRING KEY, PRODUCT_NAME STRING, PRODUCT_RATING DOUBLE, SALE_PRICE INTEGER)
+   WITH (kafka_topic='sql_dbo_products', partitions=1, key_format='JSON', value_format='JSON_SR');
+
+   CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING, USER_ID STRING, VIEW_TIME INTEGER)
+   WITH (kafka_topic='clickstreams_global', partitions=1, value_format='JSON_SR');
+   ```
 
 ## Teardown
 
