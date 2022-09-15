@@ -145,7 +145,7 @@ In order to successfully complete this demo you need to install few tools before
    ```
 1. We need to reserialize `click_stream` stream so Schema Registry can track all the changes to the schema.
    ```sql
-   CREATE STREAM clickstreams_global WITH (KAFKA_TOPIC='clickstreams_global', PARTITIONS=1, REPLICAS=3, KEY_FORMAT ='JSON_SR', VALUE_FORMAT='JSON_SR') AS
+   CREATE STREAM clickstreams_global WITH (KAFKA_TOPIC='clickstreams_global', PARTITIONS=1, REPLICAS=3, KEY_FORMAT ='JSON', VALUE_FORMAT='JSON_SR') AS
       SELECT *
       FROM CLICK_STREAM
       EMIT CHANGES;
