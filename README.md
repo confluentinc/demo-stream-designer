@@ -178,7 +178,7 @@ In order to successfully complete this demo you need to install few tools before
       "max.batch.size": "1",
       "output.data.format": "JSON_SR",
       "after.state.only": "true",
-      "output.key.format": "JSON_SR",
+      "output.key.format": "JSON",
       "tasks.max": "1",
       "transforms": "Transform0",
       "transforms.Transform0.type": "io.confluent.connect.cloud.transforms.TopicRegexRouter",
