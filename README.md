@@ -267,7 +267,7 @@ In order to successfully complete this demo you need to install few tools before
    "kafka.auth.mode"='KAFKA_API_KEY',
    "max.batch.size"='1',
    "output.data.format"='JSON_SR',
-   "output.key.format"='JSON_SR',
+   "output.key.format"='JSON',
    "poll.interval.ms"='1',
    "snapshot.mode"='initial',
    "table.include.list"='dbo.products, dbo.orders',
