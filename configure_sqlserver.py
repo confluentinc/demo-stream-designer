@@ -7,7 +7,7 @@ server = '<DB_ENDPOINT>'
 database = 'public'
 username = '<DB_USERNAME>'
 password = '<DB_PASSWORD>'
-purchase_count = 5
+purchase_count = 1
 
 def create_database():
     database = 'master' 
