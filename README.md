@@ -179,11 +179,7 @@ In order to successfully complete this demo you need to install few tools before
       "output.data.format": "JSON_SR",
       "after.state.only": "true",
       "output.key.format": "JSON",
-      "tasks.max": "1",
-      "transforms": "Transform0",
-      "transforms.Transform0.type": "io.confluent.connect.cloud.transforms.TopicRegexRouter",
-      "transforms.Transform0.regex": "sql.dbo.(.*)",
-      "transforms.Transform0.replacement": "sql_dbo_$1"
+      "tasks.max": "1"
       }
    }
    ```
@@ -271,11 +267,7 @@ In order to successfully complete this demo you need to install few tools before
    "poll.interval.ms"='1',
    "snapshot.mode"='initial',
    "table.include.list"='dbo.products, dbo.orders',
-   "tasks.max"='1',
-   "transforms"='Transform0',
-   "transforms.Transform0.regex"='sql.dbo.(.*)',
-   "transforms.Transform0.replacement"='sql_dbo_$1',
-   "transforms.Transform0.type"='io.confluent.connect.cloud.transforms.TopicRegexRouter'
+   "tasks.max"='1'
    );
 
    CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
@@ -285,9 +277,9 @@ In order to successfully complete this demo you need to install few tools before
    WITH (kafka_topic='sql_dbo_products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING, USER_ID STRING, VIEW_TIME INTEGER)
-   WITH (kafka_topic='clickstreams_global', partitions=1, value_format='JSON_SR');
+   WITH (kafka_topic='clickstreams_global', partitions=1, KEY_FORMAT ='JSON', value_format='JSON_SR');
 
-   CREATE OR REPLACE STREAM "orders_enriched" WITH (kafka_topic='orders_enriched', partitions=1, value_format='JSON_SR') AS
+   CREATE OR REPLACE STREAM "orders_enriched" WITH (kafka_topic='orders_enriched', partitions=1, KEY_FORMAT ='JSON', value_format='JSON_SR') AS
       SELECT * FROM "orders_stream" left_stream
       INNER JOIN "clickstreams_global" right_stream
       WITHIN 1 HOUR GRACE PERIOD 1 MINUTE
