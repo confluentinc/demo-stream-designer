@@ -271,10 +271,10 @@ In order to successfully complete this demo you need to install few tools before
    );
 
    CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
-   WITH (kafka_topic='sql_dbo_orders', partitions=1, key_format='JSON', value_format='JSON_SR');
+   WITH (kafka_topic='sql.dbo.orders', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE STREAM "products_stream" (PRODUCT_ID STRING KEY, PRODUCT_NAME STRING, PRODUCT_RATING DOUBLE, SALE_PRICE INTEGER)
-   WITH (kafka_topic='sql_dbo_products', partitions=1, key_format='JSON', value_format='JSON_SR');
+   WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING, USER_ID STRING, VIEW_TIME INTEGER)
    WITH (kafka_topic='clickstreams_global', partitions=1, KEY_FORMAT ='JSON', value_format='JSON_SR');
