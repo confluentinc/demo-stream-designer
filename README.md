@@ -271,39 +271,62 @@ In order to successfully complete this demo you need to install few tools before
    CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
    WITH (kafka_topic='sql.dbo.orders', partitions=1, key_format='JSON', value_format='JSON_SR');
 
+   CREATE OR REPLACE STREAM "clickstreams_global"
+   WITH (kafka_topic='clickstreams_global', partitions=1, value_format='JSON_SR');
+
+   CREATE OR REPLACE STREAM "orders_enriched"
+   WITH (kafka_topic='orders_enriched', partitions=1, value_format='JSON_SR')
+   AS SELECT * FROM "orders_stream" o INNER JOIN "clickstreams_global" c
+      WITHIN 1 HOUR GRACE PERIOD 1 MINUTE
+   ON o.customer_id = c.user_id;
+
    CREATE OR REPLACE STREAM "products_stream" (PRODUCT_ID STRING KEY, PRODUCT_NAME STRING, PRODUCT_RATING DOUBLE, SALE_PRICE INTEGER)
    WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
-   CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING, USER_ID STRING, VIEW_TIME INTEGER)
-   WITH (kafka_topic='clickstreams_global', partitions=1, KEY_FORMAT ='JSON', value_format='JSON_SR');
-
    CREATE OR REPLACE TABLE "products_table"
-   WITH (kafka_topic='products_table', partitions=1, key_format='JSON', value_format='JSON_SR')AS
-      SELECT PRODUCT_ID AS PRODUCT_ID,
+   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
+      SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
          LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
          LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
          LATEST_BY_OFFSET(SALE_PRICE) AS SALE_PRICE
       FROM "products_stream"
-      GROUP BY PRODUCT_ID;
+      GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
 
-   CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed" WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, key_format='JSON', value_format='JSON_SR') AS
-      SELECT *
+   CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
+   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
+      SELECT CUSTOMER_ID,
+         EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
+         PRODUCT_ID,
+         PURCHASE_TIMESTAMP
       FROM "orders_stream"
-      PARTITION BY product_id;
+      PARTITION BY PRODUCT_ID;
 
-   CREATE OR REPLACE STREAM "orders_and_products" WITH (kafka_topic='orders_and_products', partitions=1, key_format='JSON', value_format='JSON_SR') AS
+   CREATE OR REPLACE STREAM "orders_and_products"
+   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
       SELECT *
-      FROM "orders_stream_productid_rekeyed" o
-      INNER JOIN "products_table" p
-      ON o.PRODUCT_ID = p.PRODUCT_ID;
+      FROM "orders_stream_productid_rekeyed" O
+         INNER JOIN "products_table" P
+         ON O.PRODUCT_ID = P.PRODUCT_ID;
 
-
-   CREATE OR REPLACE STREAM "orders_enriched" WITH (kafka_topic='orders_enriched', partitions=1, value_format='JSON_SR') AS
+   CREATE OR REPLACE STREAM "big_bend_shoes"
+   WITH (kafka_topic='big_bend_shoes', partitions=1, value_format='JSON_SR') AS
       SELECT *
-      FROM "orders_stream" o
-      INNER JOIN "clickstreams_global" c
-         WITHIN 1 HOUR GRACE PERIOD 1 MINUTE
-      ON o.customer_id = c.user_id;
+      FROM "orders_and_products"
+      WHERE LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%';
+
+   CREATE SINK CONNECTOR "MongoDbAtlasSinkConnector_0" WITH (
+   "connection.host"='<MONGODB_ENDPOINT>',
+   "connection.password"='<DATABASE_PASSWORD>',
+   "connection.user"='<DATABASE_USER>',
+   "connector.class"='MongoDbAtlasSink',
+   "database"='<DATABASE_NAME>',
+   "input.data.format"='JSON_SR',
+   "kafka.api.key"='<KAFKA_API_KEY>',
+   "kafka.api.secret"='<KAFKA_API_SECRET>',
+   "kafka.auth.mode"='KAFKA_API_KEY',
+   "tasks.max"='1',
+   "topics"='orders_enriched'
+   );
    ```
 
 ## Teardown
