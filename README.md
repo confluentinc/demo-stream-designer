@@ -238,9 +238,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Click on the **Re-activate pipeline** and once the pipeline is activated check to see your MongoDB database is populated correctly.
 
-<div align="center" padding=25px>
-    <img src="SD-live4.png" width=100% height=100%>
-</div>
+![Alt Text](complete-pipeline.gif)
 
 ## Code Import
 
