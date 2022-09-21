@@ -106,17 +106,6 @@ In order to successfully complete this demo you need to install few tools before
 
 ## Setup
 
-1. Update `produce_clickstream.py` and set `num_clicks = 3000`.
-1. Update `config.ini` file and set the following values with your own Confluent Cloud cluster.
-   ```
-   bootstrap.servers=<BOOTSTRAP.SERVER>
-   sasl.username=<KAFKA_CLUSTER_API>
-   sasl.password=<KAFKA_CLUSTER_SECRET_KEY>
-   ```
-1. Open a `Terminal` window and run the script.
-   ```
-   python3 produce_clickstream.py config.ini
-   ```
 1. Log into Confluent Cloud and navigate to the **Topic** tab.
 1. Click on **+Add topic** and create a new topic with following configuration.
 
@@ -125,6 +114,19 @@ In order to successfully complete this demo you need to install few tools before
    ```
 
    > Alternatively you can create this topic by using Confluent Cloud CLI and running `confluent kafka topic create click_stream --partitions 1` command.
+
+1. Update `produce_clickstream.py` and set `num_clicks = 3000`.
+1. Update `config.ini` file and set the following values with your own Confluent Cloud cluster.
+   ```
+   bootstrap.servers=<BOOTSTRAP.SERVER>
+   sasl.username=<KAFKA_CLUSTER_API>
+   sasl.password=<KAFKA_CLUSTER_SECRET_KEY>
+   ```
+1. Open a `Terminal` window and run the script.
+
+   ```
+   python3 produce_clickstream.py config.ini
+   ```
 
 1. Log into Confluent Cloud and navigate to Stream Designer tab.
 
@@ -154,89 +156,75 @@ In order to successfully complete this demo you need to install few tools before
    ```sql
    SELECT * FROM clickstreams_global EMIT CHANGES;
    ```
-1. Use the left handside menu and navigate to **Streaming Designer** and set into the pipeline you created earlier.
-1. Click on **Add a connector** box and then hit the **Configure** icon.
-1. Use the search box and look for **Microsoft SQL Server CDC Source** and configure the source connector.
-   ```
-   {
-   "name": "SqlServerCdcSourceConnector_0",
-   "config": {
-      "connector.class": "SqlServerCdcSource",
-      "name": "SqlServerCdcSourceConnector_0",
-      "kafka.auth.mode": "KAFKA_API_KEY",
-      "kafka.api.key": "<KAFKA_API_KEY>",
-      "kafka.api.secret": "<KAFKA_API_SECRET>",
-      "database.hostname": "sql-server-demo.***.us-west-2.rds.amazonaws.com",
-      "database.port": "1433",
-      "database.user": "admin",
-      "database.password": "<SQL_SERVER_PASSWORD>",
-      "database.dbname": "public",
-      "database.server.name": "sql",
-      "table.include.list": "dbo.products, dbo.orders",
-      "snapshot.mode": "initial",
-      "poll.interval.ms": "1",
-      "max.batch.size": "1",
-      "output.data.format": "JSON_SR",
-      "after.state.only": "true",
-      "output.key.format": "JSON",
-      "tasks.max": "1"
-      }
-   }
-   ```
-1. Click on the dot on the right edge of the SQL Server source connector box and add 2 new topics with following configurations
-   ```
-   name: sql_dbo_products --partitions 1
-   name: sql_dbo_orders --partitions 1
-   ```
-1. Use the left hand side menu and click on **Topic** under **Components**. This should add a new topic to your canvas.
-1. Click on the **Configure** link on the topic box and then hit **Choose an existing topic instead** and pick **clickstreams_global** for the list of available topics.
-1. Hit **Save**.
-1. Click on **Activate pipeline** on the top right corner of the screen and wait few minutes until the connector is in running state and all topics are activated without errors. This should only take few minutes.
-1. Once the pipeline is activated completely click on each topic and navigate to the messages tab to ensure they are populated correctly.
-1. Next we are going to create a new stream that will contain customers' clickstream data who have made a purchase within 1 hour. We will later use this enriched stream to send personalized promotional materials to our customers.
-1. To do so, add a **Join** element from **Components** list with following configurations and hit **Save**
+1. Use the left handside menu and navigate to **Stream Designer** and set into the pipeline you created earlier.
+1. Click on **Start with SQL** to open the code editor and paste the following code.
 
-   ```
-   join name: orders_clickstreams
-   left topic: sql_dbo_orders
-   join type: inner
-   duration: 1
-   unit: hour
-   join clause: left_stream.customer_id = right_stream.user_id
-   query name: join_orders_clicks
+   ```sql
+   CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
+   "after.state.only"='true',
+   "connector.class"='SqlServerCdcSource',
+   "database.dbname"='public',
+   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
+   "database.password"='<SQL_SERVER_PASSWORD>',
+   "database.port"='1433',
+   "database.server.name"='sql',
+   "database.user"='admin',
+   "kafka.api.key"='<KAFKA_API_KEY>',
+   "kafka.api.secret"='<KAFKA_API_SECRET>',
+   "kafka.auth.mode"='KAFKA_API_KEY',
+   "max.batch.size"='1',
+   "output.data.format"='JSON_SR',
+   "output.key.format"='JSON',
+   "poll.interval.ms"='1',
+   "snapshot.mode"='initial',
+   "table.include.list"='dbo.products, dbo.orders',
+   "tasks.max"='1'
+   );
 
-   ```
+   CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
+   WITH (kafka_topic='sql.dbo.orders', partitions=1, key_format='JSON', value_format='JSON_SR');
 
-1. Each join needs at least two input streams. Drag `sql_dbo_orders` to connect to `join` component and then drag `clickstreams_global` to connect to `join` component.
-1. Finally, the **Join** component needs an output topic. Click on the dot on the right edge of `orders_clickstreams` topic and add a new topic with following configurations.
-   ```
-   orders_enriched --partition 1
-   ```
-1. Click on the **Re-activate pipeline** and verify `orders_enriched` is populated correctly.
-1. As part of the database modernization effort, we decided to store the enriched stream in a MongoDB Atlas database.
-1. Click Click on the dot on the right edge of `orders_enriched` topic and add a new sink connector with following configurations.
+   CREATE OR REPLACE STREAM "products_stream" (PRODUCT_ID STRING KEY, PRODUCT_NAME STRING, PRODUCT_RATING DOUBLE, SALE_PRICE INTEGER)
+   WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
-   ```
-   {
-   "name": "MongoDbAtlasSinkConnector_0",
-   "config": {
-      "connector.class": "MongoDbAtlasSink",
-      "name": "MongoDbAtlasSinkConnector_0",
-      "input.data.format": "JSON_SR",
-      "kafka.auth.mode": "KAFKA_API_KEY",
-      "kafka.api.key": "<KAFKA_API_KEY>",
-      "kafka.api.secret": "<KAFKA_API_SECRET>",
-      "topics": "orders_enriched",
-      "connection.host": "<MONGODB_ENDPOINT>",
-      "connection.user": "<DATABASE_USER>",
-      "connection.password": "<DATABASE_PASSWORD>",
-      "database": "<DATABASE_NAME>",
-      "tasks.max": "1"
-      }
-   }
+   CREATE OR REPLACE TABLE "products_table"
+   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
+      SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
+         LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
+         LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
+         LATEST_BY_OFFSET(SALE_PRICE) AS SALE_PRICE
+      FROM "products_stream"
+      GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
+
+   CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
+   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
+      SELECT CUSTOMER_ID,
+         EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
+         PRODUCT_ID,
+         PURCHASE_TIMESTAMP
+      FROM "orders_stream"
+      PARTITION BY PRODUCT_ID;
+
+   CREATE OR REPLACE STREAM "orders_and_products"
+   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
+      SELECT *
+      FROM "orders_stream_productid_rekeyed" O
+         INNER JOIN "products_table" P
+         ON O.PRODUCT_ID = P.PRODUCT_ID;
    ```
 
-1. Click on the **Re-activate pipeline** and once the pipeline is activated check to see your MongoDB database is populated correctly.
+1. Update the following variables to match your environment:
+
+   ```
+   database.hostname
+   database.password
+   kafka.api.key
+   kafka.api.secret
+   ```
+
+1. Click on **Activate pipeline** and wait until all components are activated and the source connector is in **Running** state.
+   > Note: you might have to **Activate** or **Re-activate** the pipeline if your topics and operations were activated before your source connector was in the running state.
+1. Click on each topic to verify they are populated correctly.
 
 ![Alt Text](complete-pipeline.gif)
 
@@ -244,7 +232,7 @@ In order to successfully complete this demo you need to install few tools before
 
 > Note: This section is actively being edited and is not complete.
 
-1. To build the prep work through code editor, start with an empty pipeline and paste the following code in the code editor.
+1. You can build the entire demo by going to pasting the following code into the code editor.
 
    ```sql
    CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
