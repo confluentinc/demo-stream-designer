@@ -1,6 +1,6 @@
 # Current 2022 Confluent Keynote Demo
 
-Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer, Stream Sharing, and Stream Catalog.
+Internal repo for Current 2022 Confluent Keynote Demo covering Stream Designer and Stream Governance Advanced.
 
 ## Requirements
 
@@ -55,16 +55,34 @@ In order to successfully complete this demo you need to install few tools before
 1. Save your API key and secret - you will need these during the demo.
 1. After creating and saving the API key, you will see this API key in the Confluent Cloud UI in the API keys tab. If you don’t see the API key populate right away, refresh the browser.
 
-#### Enable Schema Registery
+#### Enable Stream Governance Advanced package
 
-1. On the navigation menu, select **Schema Registery**.
-1. Click **Set up on my own**.
+1. Navigate to your cluster page and on the right hand-side enable **Stream Goveranance Advanced** package.
 1. Choose **AWS** as the cloud provider and a supported **Region**
-1. Click on **Enable Schema Registry**.
+1. Click on **Tags** to create new tags.
+1. Click on the **+Create tag** icon and add the following **Free-form** tags.
+   ```
+   Tag name: prod
+   Description: Data for production environment.
+   Tag name: stag
+   Description: Data for staging environment.
+   Tag name: dev
+   Description: Data for development environment.
+   ```
+1. Create a **Recommended** tag and check **PII** box.
+1. Navigate back to your cluster and click on **Business metadata** and create a new business metadata with following configuration.
+   ```
+   Name: Domain
+   Description: Events for analyzing users behavior.
+   Attribute 1: Team_owner
+   Attribute 2: Slack_contact
+   Attribute 3: Name
+   ```
+1. For more information and detailed instructions visit our [doc](https://docs.confluent.io/cloud/current/stream-governance/index.html) page.
 
 ### Setup SQL Server
 
-1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only Enterprise, Developer, Enterprise Evaluation, and Standard editions, so ensure you choose a configuration that supports CDC.
+1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only supported on Enterprise, Developer, Enterprise Evaluation, and Standard editions, so ensure you choose a configuration that supports CDC.
 1. This demo uses Amazon RDS Microsoft SQL Server that is publicly accessible. If your database is in a VPC, follow the instructions on our [doc](https://docs.confluent.io/cloud/current/networking/peering/aws-peering.html) page.
 1. Navigate to https://aws.amazon.com/console/ and log into your account.
 1. Search for **RDS** and click on results.
@@ -89,7 +107,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. You can use DBeaver and connect to your SQL Server and verify that your database is populating correctly in following steps.
 
-1. Update `configure_sqlserver.py` so the following values correspond to your database.
+1. Update `configure_sqlserver.py` and `produce_orders.py` so the following values match with your database.
 
    ```
    server = '<DB_ENDPOINT>'
@@ -106,8 +124,8 @@ In order to successfully complete this demo you need to install few tools before
 
 ## Setup
 
-1. Log into Confluent Cloud and navigate to the **Topic** tab.
-1. Click on **+Add topic** and create a new topic with following configuration.
+1. Log into Confluent Cloud and navigate to your cluster.
+1. Navigate to the **Topic** tab and click on **+Add topic** and create a new topic with following configuration.
 
    ```
    click_stream --partitions 1
@@ -115,7 +133,6 @@ In order to successfully complete this demo you need to install few tools before
 
    > Alternatively you can create this topic by using Confluent Cloud CLI and running `confluent kafka topic create click_stream --partitions 1` command.
 
-1. Update `produce_clickstream.py` and set `num_clicks = 3000`.
 1. Update `config.ini` file and set the following values with your own Confluent Cloud cluster.
    ```
    bootstrap.servers=<BOOTSTRAP.SERVER>
@@ -128,12 +145,13 @@ In order to successfully complete this demo you need to install few tools before
    python3 produce_clickstream.py config.ini
    ```
 
+1. Open anoterh `Terminal` window and create new orders.
+   ```
+   python3 produce_orders.py
+   ```
 1. Log into Confluent Cloud and navigate to Stream Designer tab.
 
 1. Click on **+ Create pipeline** icon. Choose a name for your pipeline and create a ksqlDB Cluster.
-
-## Demo
-
 1. Log into Confluent Cloud and navigate to ksqlDB tab and step into your cluster.
 1. Change `auto.offset.reset = Earliest`.
 1. Create a ksqlDB stream off of `click_stream` topic.
@@ -156,8 +174,25 @@ In order to successfully complete this demo you need to install few tools before
    ```sql
    SELECT * FROM clickstreams_global EMIT CHANGES;
    ```
-1. Use the left handside menu and navigate to **Stream Designer** and set into the pipeline you created earlier.
+1. Use **Stream Catalog** and search for `clickstreams_global` and click on the topic.
+1. On the right side of the screen add `prod` in **Tags** section.
+1. Click on **+Add business metadata** and from the drop down list select **Domain** and add the following information
+   - Team_owner: Web
+   - Slack_contact: #web-optimization
+   - Name: user clickstreams
+
+## Demo
+
+1. Log into Confluent Cloud and navigate to **Stream Designer** and step into the pipeline you created earlier.
 1. Click on **Start with SQL** to open the code editor and paste the following code.
+1. The code adds the below components to the canvas
+
+   - SQL Server source connector which captures all data changes in our source database and streams it to Confluent Cloud in near real time.([doc](https://docs.confluent.io/cloud/current/connectors/cc-microsoft-sql-server-source-cdc-debezium.html))
+   - `sql.dbo.orders` and `sql.dbo.products` as connector's output topics.
+   - `orders_stream` and `products_stream` that are ksqlDB streams based on output topics.
+   - `products_table` which is a ksqlDB table that has the latest information for each product.
+   - We need to re-partition the `orders_stream` and use `product_id` as the key so we can join the stream with `products_table`. This stream is called `orders_stream_productid_rekeyed`.
+   - Join `products_table` and `orders_stream_productid_rekeyed` and call the resulting stream `orders_and_products`.
 
    ```sql
    CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
@@ -225,7 +260,71 @@ In order to successfully complete this demo you need to install few tools before
 1. Click on **Activate pipeline** and wait until all components are activated and the source connector is in **Running** state.
    > Note: you might have to **Activate** or **Re-activate** the pipeline if your topics and operations were activated before your source connector was in the running state.
 1. Click on each topic to verify they are populated correctly.
+1. We want to see how Big Bend Shoes are selling in our store. In order to do that, we need to apply a filter to `orders_and_products` stream.
+1. Click on the right edge of `orders_and_products` stream and hit on **Filter** from list of options.
+1. Create a new filter with the following properties and hit **Save**
+   ```
+   query name: shoes
+   filter name: shoes
+   filter expression: LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%'
+   ```
+1. Click on the right edge of **Filter** component and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
+   ```
+   topic name: big_bend_shoes
+   stream name: big_bend_shoes
+   ```
+1. Re-activate the pipeline.
+1. `big_bend_shoes` is now data as a product. Other team in your Confluent Cloud's organization can write consumers against this topic to create dashboards, apps, etc.
+1. Next, we want to send promotional materials to our online users based on their order and browsing history on our website. To do so, we need do data enrichment.
+1. We will use **Stream Catalog** to find the right clickstreams data.
+1. Click on **Stream Catalog** search bar and search for `clickstreams_global` and click on the topic.
+1. Click on **Schema** tab and expand the properties and apply **PII** tag to `IP_ADDRESS`.
+1. Verify the tags and business metadata listed on the right hand-side are correct.
+1. Go back to **Stream Designer** and step into your pipeline to continue adding more components.
+1. Add a new **Topic** to the canvas and click on `configure` link in the topic box and click on **Configuration** tab and click on **Choose an existing topic instead**.
+1. Select `clickstreams_global` from the list of topics and hit **Save**.
+1. Click on `configure` link in the stream name and add the following properties and hit **Save**
 
+   ```
+   Name: clickstreams_global
+   Columns for the stream: IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING , USER_ID STRING , VIEW_TIME INTEGER
+
+   ```
+
+1. Re-activate the pipeline.
+1. Now we can do our data enrichment by doing a Stream-Stream join on `orders_stream` and `clickstreams_global`.
+1. Initiate a join by clicking on the right edge of `orders_stream` and hit on **Join** from list of options.
+1. Add the second stream by innitiating a connection from the right edge of `clickstreams_global` stream.
+1. Create a new join with the following properties and hit **Save**
+   ```
+   query name: orders_clickstreams
+   join name: orders_clickstreams
+   left input source: orders_stream
+   alias of the left: o
+   input source: clickstreams_global
+   alias of the input source: c
+   join type: INNER
+   join on clause: o.customer_id = c.user_id
+   window duration: 1
+   duration unit: HOUR
+   grace period duration: 1
+   grace period unit: MINUTE
+   ```
+1. Click on the right edge of the `Join` component and select **Stream** from the list and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
+   ```
+   topic name: orders_enriched
+   stream name: orders_enriched
+   ```
+1. Re-activate the pipeline.
+1. The marketing team decided to use MongoDB Atlas as their cloud-native database and we can easily send `orders_enriched` stream to that database by leveraging our full-managed connector.
+1. Click on the right edge of `orders_enriched` Kafka topic and hit on **Sink Connector**.
+1. Look for and provision a MongoDB Atlas Sink Connector.
+1. Re-activate the pipeline and once all components are activated verify the data is showing up in MongoDB database correctly.
+   > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html)page.
+
+### CONGRATULATIONS
+
+Congratulations on building your streaming data pipeline with **Stream Designer**. Your complete pipeline should resemble the following one.
 ![Alt Text](complete-pipeline.gif)
 
 ## Code Import
@@ -316,5 +415,7 @@ In order to successfully complete this demo you need to install few tools before
    ```
 
 ## Teardown
+
+1. Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
 ## References
