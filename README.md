@@ -230,8 +230,6 @@ In order to successfully complete this demo you need to install few tools before
 
 ## Code Import
 
-> Note: This section is actively being edited and is not complete.
-
 1. You can build the entire demo by going to pasting the following code into the code editor.
 
    ```sql
