@@ -187,7 +187,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Click on **Start with SQL** to open the code editor and paste the following code.
 1. The code adds the below components to the canvas
 
-   - SQL Server source connector which captures all data changes in our source database and streams it to Confluent Cloud in near real time.([doc](https://docs.confluent.io/cloud/current/connectors/cc-microsoft-sql-server-source-cdc-debezium.html))
+   - SQL Server source connector which captures all data changes in our source database and streams it to Confluent Cloud in near real time([doc](https://docs.confluent.io/cloud/current/connectors/cc-microsoft-sql-server-source-cdc-debezium.html)).
    - `sql.dbo.orders` and `sql.dbo.products` as connector's output topics.
    - `orders_stream` and `products_stream` that are ksqlDB streams based on output topics.
    - `products_table` which is a ksqlDB table that has the latest information for each product.
@@ -288,7 +288,6 @@ In order to successfully complete this demo you need to install few tools before
    ```
    Name: clickstreams_global
    Columns for the stream: IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING , USER_ID STRING , VIEW_TIME INTEGER
-
    ```
 
 1. Re-activate the pipeline.
