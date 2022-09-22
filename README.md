@@ -230,7 +230,7 @@ In order to successfully complete this demo you need to install few tools before
 
 ## Code Import
 
-1. You can build the entire demo by going to pasting the following code into the code editor.
+1. You can build the entire demo by pasting the following code into the code editor.
 
    ```sql
    CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
