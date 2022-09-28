@@ -287,6 +287,8 @@ In order to successfully complete this demo you need to install few tools before
 
    ```
    Name: clickstreams_global
+   Key format: JSON
+   Value format: JSON_SR
    Columns for the stream: IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING , USER_ID STRING , VIEW_TIME INTEGER
    ```
 
