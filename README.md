@@ -1,8 +1,10 @@
 # Stream Designer Demo
 
 Data pipelines continue to do the heavy-lifting in data integration. In order to immediately act on insights, companies turn to Apache Kafka® to replace legacy, batch-based pipelines with streaming data pipelines. There are still major challenges with building reusable data pipelines on open-source Kafka, like an overreliance on specialized Kafka engineering talent and cumbersome development cycles. These bottlenecks limit the speed at which teams can set data in motion.
+
 Confluent’s Stream Designer is a new visual canvas for rapidly building, testing, and deploying streaming data pipelines powered by Kafka. You can quickly and easily build pipelines graphically or with SQL, leveraging built-in integrations with fully managed connectors, ksqlDB for stream processing, and Kafka topics.
 This demo walks you through building streaming data pipelines in minute!
+
 Watch the [demo](https://youtu.be/vc3od1KLU_0?t=1538) during Current 2022 keynote: Reimagining Data Pipelines for the Streaming Era.
 
 ## Requirements
