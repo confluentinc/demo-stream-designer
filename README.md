@@ -422,6 +422,8 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 ## Teardown
 
-1. Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
+Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
 ## References
+
+Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
