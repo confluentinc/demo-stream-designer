@@ -44,7 +44,7 @@ In order to successfully complete this demo you need to install few tools before
 
    > **Note**: Confluent Cloud clusters are available in 3 types: **Basic**, **Standard**, and **Dedicated**. Basic is intended for development use cases and only support single zone availability. Standard and Dedicated clusters are intended for production use and support Multi-zone deployments. If you’re interested in learning more about the different types of clusters and their associated features and limits, refer to this [documentation](https://docs.confluent.io/current/cloud/clusters/cluster-types.html).
 
-   - Choose the **Dedicated** cluster type.
+   - Choose the **Basic** cluster type.
 
    - Click **Begin Configuration**.
 
