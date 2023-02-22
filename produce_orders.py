@@ -2,7 +2,6 @@ from datetime import datetime
 from time import sleep
 import csv
 from unittest import result
-from numpy import product
 import pyodbc 
 
 server = '<DB_ENDPOINT>'
