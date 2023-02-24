@@ -78,7 +78,7 @@ In order to successfully complete this demo you need to install few tools before
 
    SQL_USERNAME=admin
    SQL_PASSWORD=db-sd-c0nflu3nt!
-   SQL_SERVER=mk-sql-server-demo.<replace>.us-west-2.rds.amazonaws.com
+   SQL_SERVER=sql-server-demo.<replace>.us-west-2.rds.amazonaws.com
    SQL_PORT=1433
 
    export TF_VAR_confluent_cloud_api_key="<replace>"
