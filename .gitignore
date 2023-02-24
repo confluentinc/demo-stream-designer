@@ -167,7 +167,6 @@ override.tf.json
 
 /postgres/conf
 
-env.sh
 notes.file
 notes.sql
 
@@ -178,8 +177,6 @@ notes
 *.p8
 *.pub
 
-# shell
-env.sh
 
 # Local .terraform directories
 **/.terraform/*
