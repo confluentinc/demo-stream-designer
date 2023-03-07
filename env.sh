@@ -2,6 +2,7 @@
 
 # Source the .env file
 source .env
+sleep_time=2
 
 # Use confluent environment
 confluent login --save
@@ -18,7 +19,12 @@ confluent kafka cluster use $CCLOUD_CLUSTER_ID
 
 # Get cluster bootstrap endpoint
 export CCLOUD_BOOTSTRAP_ENDPOINT=$(confluent kafka cluster describe -o json | jq -r .endpoint)
-echo $CCLOUD_BOOTSTRAP_ENDPOINT
+# echo $CCLOUD_BOOTSTRAP_ENDPOINT
+STRIPPED_CCLOUD_BOOTSTRAP_ENDPOINT=$(echo $CCLOUD_BOOTSTRAP_ENDPOINT | sed 's/SASL_SSL:\/\///')
+
+# use sed to replace kafka-cluster-endpoint with the replacement string
+sed -i .bak "s/kafka-cluster-endpoint/$STRIPPED_CCLOUD_BOOTSTRAP_ENDPOINT/g" .env
+sleep $sleep_time
 
 # Create a new pipeline for Stream Designer and grant permissions
 echo "Creating a new pipeline in Stream Designer"
@@ -29,15 +35,29 @@ confluent pipeline create --name "demo-pipeline" \
     --description "Streaming data pipeline for a retail company." \
     --ksql-cluster ${KSQL_CLUSTER_ID}
 
+sleep $sleep_time
+
 PIPELINE_ID=$(confluent pipeline list -o json | jq -r '.[] | select(.name | contains("demo-pipeline")) | .id')
 confluent pipeline update ${PIPELINE_ID} \
     --activation-privilege=true
 
+sleep $sleep_time
+
 # Create an API key pair to use for connectors
 echo "Creating Kafka cluster API key"
-confluent api-key create \
-    --resource $CCLOUD_CLUSTER_ID \
-    --description "demo-stream-designer"
+CREDENTIALS=$(confluent api-key create --resource $CCLOUD_CLUSTER_ID --description "demo-stream-designer" -o json)
+kafka_api_key=$(echo $CREDENTIALS | jq -r '.api_key')
+kafka_api_secret=$(echo $CREDENTIALS | jq -r '.api_secret')
+sleep $sleep_time
+
+# # print the values
+# echo "API key: $kafka_api_key"
+# echo "API secret: $kafka_api_secret"
+
+# use sed to replace all instances of $kafka_api_key with the replacement string
+sed -i .bak "s^api-key^\"$kafka_api_key\"^g" .env 
+sed -i .bak "s^api-secret^\"$kafka_api_secret\"^g" .env 
+
 
 # Get schema registry info
 export CCLOUD_SCHEMA_REGISTRY_ID=$(confluent sr cluster describe -o json | jq -r .cluster_id)
@@ -45,9 +65,24 @@ export CCLOUD_SCHEMA_REGISTRY_ENDPOINT=$(confluent sr cluster describe -o json |
 
 echo ""
 echo "Creating schema registry API key"
-confluent api-key create \
-    --resource $CCLOUD_SCHEMA_REGISTRY_ID \
-    --description "demo-stream-designer" \
+SR_CREDENTIALS=$(confluent api-key create --resource $CCLOUD_SCHEMA_REGISTRY_ID --description "demo-stream-designer" -o json)
+sr_api_key=$(echo $SR_CREDENTIALS | jq -r '.api_key')
+sr_api_secret=$(echo $SR_CREDENTIALS | jq -r '.api_secret')
+sleep $sleep_time
+
+# # print the values
+# echo "API key: $sr_api_key"
+# echo "API secret: $sr_api_secret"
+
+# use sed to replace all instances of $sr_api_key and $sr_api_secret with the replacement string
+sed -i .bak "s^sr-key^\"$sr_api_key\"^g" .env 
+sed -i .bak "s^sr-secret^\"$sr_api_secret\"^g" .env
+sed -i .bak "s^sr-cluster-endpoint^$CCLOUD_SCHEMA_REGISTRY_ENDPOINT^g" .env
+sleep $sleep_time
+
+# source the .env file
+source .env
+sleep $sleep_time
 
 echo ""
 echo "Creating tags"
