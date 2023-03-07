@@ -67,13 +67,13 @@ In order to successfully complete this demo you need to install few tools before
    CONFLUENT_CLOUD_EMAIL=<replace>
    CONFLUENT_CLOUD_PASSWORD=<replace>
 
-   CCLOUD_API_KEY="<replace>"
-   CCLOUD_API_SECRET="<replace>"
-   CCLOUD_BOOTSTRAP_ENDPOINT=pkc-<replace>.us-west-2.aws.confluent.cloud:9092
+   CCLOUD_API_KEY=api-key
+   CCLOUD_API_SECRET=api-secret
+   CCLOUD_BOOTSTRAP_ENDPOINT=kafka-cluster-endpoint
 
-   CCLOUD_SCHEMA_REGISTRY_API_KEY="<replace>"
-   CCLOUD_SCHEMA_REGISTRY_API_SECRET="<replace>"
-   CCLOUD_SCHEMA_REGISTRY_URL=https://psrc-<replace>.us-west-2.aws.confluent.cloud
+   CCLOUD_SCHEMA_REGISTRY_API_KEY=sr-key
+   CCLOUD_SCHEMA_REGISTRY_API_SECRET=sr-secret
+   CCLOUD_SCHEMA_REGISTRY_URL=sr-cluster-endpoint
 
 
    SQL_USERNAME=admin
@@ -134,7 +134,7 @@ In order to successfully complete this demo you need to install few tools before
 
    > **Note:** Read the `main.tf` configuration file [to see what will be created](./terraform/main.tf).
 
-1. The `terraform apply` command will print the public IP addresses Confluent Cloud Kafka and Schema Registry clusters, MongoDB Atlas connection string. Update your `.env` file to include these information. You'll need these later to configuring the source connectors.
+1. The `terraform apply` command will output MongoDB Atlas connection string. Update your `.env` file to include this information.
 
 1. Get the Microsoft SQL Server endpoint by running the following command
 
@@ -160,12 +160,24 @@ In order to successfully complete this demo you need to install few tools before
 
 ### Create tags and business metadata in Confluent Cloud
 
-1. We need to create an API key pair for the Python client, tags, and business metadata. We'll achieve all of these by running a bash script.
+1. Run the `./env.sh` script to create the following resources
+
+   - API key pair for the Python client
+   - API key pair for Schema Registery
+   - Tags and business metadata
 
    ```
    cd demo-current-stream-designer
    ./env.sh
    ```
+
+1. Additionally the `env.sh` script updates the `.env` file to include correct values for following variables
+   - CCLOUD_API_KEY
+   - CCLOUD_API_SECRET
+   - CCLOUD_BOOTSTRAP_ENDPOINT
+   - CCLOUD_SCHEMA_REGISTRY_API_KEY
+   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
+   - CCLOUD_SCHEMA_REGISTRY_URL
 
 ### Prepare streams
 
@@ -352,7 +364,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Click on the right edge of `orders_enriched` Kafka topic and hit on **Sink Connector**.
 1. Look for and provision a MongoDB Atlas Sink Connector.
 1. Re-activate the pipeline and once all components are activated verify the data is showing up in MongoDB database correctly.
-   > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html)page.
+   > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html) page.
 
 ### CONGRATULATIONS
 
@@ -462,4 +474,9 @@ Ensure all the resources that were created for the demo are deleted so you don't
 
 ## References
 
-Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+1. Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+
+1. Terraform guides
+   - Confluent Cloud https://registry.terraform.io/providers/confluentinc/confluent/latest/docs
+   - Amazon RDS https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+   - MongoDB Atlas https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs
