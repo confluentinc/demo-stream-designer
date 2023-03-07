@@ -2,6 +2,7 @@
 
 # Source the .env file
 source .env
+sleep_time=5
 
 # Use confluent environment
 confluent login --save
@@ -20,7 +21,12 @@ confluent kafka cluster use $CCLOUD_CLUSTER_ID
 export CCLOUD_BOOTSTRAP_ENDPOINT=$(confluent kafka cluster describe -o json | jq -r .endpoint)
 
 # Deactive the pipeline and then delete
-PIPELINE_ID=$(confluent pipeline list -o json | jq -r '.[] | select(.name | contains("demo-pipeline")) | .id')
-confluent pipeline deactivate ${PIPELINE_ID}
-sleep 10
-confluent pipeline delete ${PIPELINE_ID}
+IFS=$'\n' read -d '' -r -a PIPELINE_ID < <(confluent pipeline list -o json | jq -r '.[] | select(.name | contains("demo-pipeline")) | .id')
+
+
+for P_ID in "${PIPELINE_ID[@]}"
+do
+    confluent pipeline deactivate $P_ID
+    sleep $sleep_time
+    confluent pipeline delete $P_ID
+done
