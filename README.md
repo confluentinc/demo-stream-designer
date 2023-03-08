@@ -54,14 +54,14 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Clone and enter this repository.
 
-   ```
+   ```bash
    git clone https://github.com/confluentinc/demo-current-stream-designer.git
    cd demo-current-stream-designer
    ```
 
 1. Create a file to manage all the values you'll need through the setup.
 
-   ```
+   ```bash
    touch .env
 
    CONFLUENT_CLOUD_EMAIL=<replace>
@@ -95,7 +95,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Update the `.env` file for the following variables with your credentials.
 
-   ```
+   ```bash
    CONFLUENT_CLOUD_EMAIL=<replace>
    CONFLUENT_CLOUD_PASSWORD=<replace>
    export TF_VAR_confluent_cloud_api_key="<replace>"
@@ -106,7 +106,7 @@ In order to successfully complete this demo you need to install few tools before
    ```
 
 1. Source the `.env` file.
-   ```
+   ```bash
    source .env
    ```
 
@@ -138,7 +138,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Get the Microsoft SQL Server endpoint by running the following command
 
-   ```
+   ```bash
    terraform output sql_endpoint
    ```
 
@@ -146,14 +146,14 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Source the `.env` file.
 
-   ```
+   ```bash
    source .env
    ```
 
 ### Enable CDC on SQL Server database
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
-   ```
+   ```bash
    cd demo-current-stream-designer/sql_scripts
    python3 prepare_sqlserver.py
    ```
@@ -166,7 +166,7 @@ In order to successfully complete this demo you need to install few tools before
    - API key pair for Schema Registery
    - Tags and business metadata
 
-   ```
+   ```bash
    cd demo-current-stream-designer
    ./env.sh
    ```
@@ -214,14 +214,14 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Open a Terminal window and run the script to create new clickstreams data.
 
-   ```
+   ```bash
    cd demo-current-stream-designer/clickstreams_scripts
    python3 produce_clickstream.py
    ```
 
 1. Open a second Terminal window and run the script to create new purchase orders.
 
-   ```
+   ```bash
    cd demo-current-stream-designer/sql_scripts
    python3 produce_orders.py
    ```
@@ -293,7 +293,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Update the following variables to match your environment:
 
-   ```
+   ```bash
    database.hostname
    database.password
    kafka.api.key
@@ -306,13 +306,13 @@ In order to successfully complete this demo you need to install few tools before
 1. We want to see how Big Bend Shoes are selling in our store. In order to do that, we need to apply a filter to `orders_and_products` stream.
 1. Click on the right edge of `orders_and_products` stream and hit on **Filter** from list of options.
 1. Create a new filter with the following properties and hit **Save**
-   ```
+   ```bash
    query name: shoes
    filter name: shoes
    filter expression: LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%'
    ```
 1. Click on the right edge of **Filter** component and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
-   ```
+   ```bash
    topic name: big_bend_shoes
    stream name: big_bend_shoes
    ```
@@ -328,7 +328,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Select `clickstreams_global` from the list of topics and hit **Save**.
 1. Click on `configure` link in the stream name and add the following properties and hit **Save**
 
-   ```
+   ```bash
    Name: clickstreams_global
    Key format: JSON
    Value format: JSON_SR
@@ -340,7 +340,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Initiate a join by clicking on the right edge of `orders_stream` and hit on **Join** from list of options.
 1. Add the second stream by innitiating a connection from the right edge of `clickstreams_global` stream.
 1. Create a new join with the following properties and hit **Save**
-   ```
+   ```bash
    query name: orders_clickstreams
    join name: orders_clickstreams
    left input source: orders_stream
@@ -355,7 +355,7 @@ In order to successfully complete this demo you need to install few tools before
    grace period unit: MINUTE
    ```
 1. Click on the right edge of the `Join` component and select **Stream** from the list and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
-   ```
+   ```bash
    topic name: orders_enriched
    stream name: orders_enriched
    ```
@@ -468,7 +468,7 @@ Ensure all the resources that were created for the demo are deleted so you don't
    ./teardown_pipeline.sh
    ```
 2. You can delete the rest of the resources that were created during this demo by executing the following command.
-   ```
+   ```bash
    Terraform apply -destory
    ```
 
