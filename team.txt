@@ -1,0 +1,9 @@
+[ {
+     "name" : "Domain",
+     "description" : "Events for analyzing users behavior.",
+     "attributeDefs" : [
+        { "name" : "Team_owner", "isOptional" : "true", "cardinality" : "SINGLE", "typeName" : "string", "options": {"maxStrLength": 30, "applicableEntityTypes": "[\"cf_entity\"]"} },
+        { "name" : "Slack_contact", "isOptional" : "true", "cardinality" : "SINGLE", "typeName" : "string", "options": {"maxStrLength": 30, "applicableEntityTypes": "[\"cf_entity\"]"} },
+        { "name" : "Name", "isOptional" : "true", "cardinality" : "SINGLE", "typeName" : "string", "options": {"maxStrLength": 30, "applicableEntityTypes": "[\"cf_entity\"]"} }
+     ]
+} ]
