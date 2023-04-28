@@ -55,8 +55,8 @@ In order to successfully complete this demo you need to install few tools before
 1. Clone and enter this repository.
 
    ```bash
-   git clone https://github.com/confluentinc/demo-current-stream-designer.git
-   cd demo-current-stream-designer
+   git clone https://github.com/confluentinc/demo-stream-designer.git
+   cd demo-stream-designer
    ```
 
 1. Create a file to manage all the values you'll need through the setup.
@@ -134,27 +134,23 @@ In order to successfully complete this demo you need to install few tools before
 
    > **Note:** Read the `main.tf` configuration file [to see what will be created](./terraform/main.tf).
 
-1. The `terraform apply` command will output MongoDB Atlas connection string. Update your `.env` file to include this information.
-
-1. Get the Microsoft SQL Server endpoint by running the following command
+1. Write the output of `terraform` to a JSON file. The `env.sh` script will parse the JSON file to update the `.env` file.
 
    ```bash
-   terraform output sql_endpoint
+   terraform output -json > ../resources.json
    ```
 
-1. Update your `.env` file to include the sql_enpoint.
-
-1. Source the `.env` file.
-
+1. Run the `env.sh` script.
    ```bash
-   source .env
+   cd demo-stream-designer
+   ./env.sh
    ```
 
 ### Enable CDC on SQL Server database
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
-   cd demo-current-stream-designer/sql_scripts
+   cd demo-stream-designer/sql_scripts
    python3 prepare_sqlserver.py
    ```
 
@@ -167,7 +163,7 @@ In order to successfully complete this demo you need to install few tools before
    - Tags and business metadata
 
    ```bash
-   cd demo-current-stream-designer
+   cd demo-stream-designer
    ./env.sh
    ```
 
@@ -215,14 +211,14 @@ In order to successfully complete this demo you need to install few tools before
 1. Open a Terminal window and run the script to create new clickstreams data.
 
    ```bash
-   cd demo-current-stream-designer/clickstreams_scripts
+   cd demo-stream-designer/clickstreams_scripts
    python3 produce_clickstream.py
    ```
 
 1. Open a second Terminal window and run the script to create new purchase orders.
 
    ```bash
-   cd demo-current-stream-designer/sql_scripts
+   cd demo-stream-designer/sql_scripts
    python3 produce_orders.py
    ```
 
@@ -464,7 +460,7 @@ Ensure all the resources that were created for the demo are deleted so you don't
 
 1. The following script will de-activate and delete the pipeline. Note that doing so, will delete your topics and you can't restore them afterwards.
    ```bash
-   cd demo-current-stream-designer
+   cd demo-stream-designer
    ./teardown_pipeline.sh
    ```
 2. You can delete the rest of the resources that were created during this demo by executing the following command.

@@ -1,7 +1,9 @@
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 import sql_config
 import csv
+import os
 import pyodbc 
 
 server = sql_config.server
@@ -43,10 +45,11 @@ def enable_cdc_database():
     close_db_connection(connection)
 
 
-def orders_table():
+def orders_table(data_dir):
     i = 0
     connection = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;', autocommit=True)
-    
+    data_file = os.path.join(data_dir, "orders.csv")
+
     # create orders table
     try:
         cursor = connection.cursor()
@@ -73,7 +76,7 @@ def orders_table():
 
     sleep (0.5)
     print("Inserting values to 'orders' table.")
-    with open("../data/orders.csv", "r") as orders_file:
+    with open(data_file, "r") as orders_file:
         orders_file.seek(0)
         rows = csv.reader(orders_file)
         # skip first line
@@ -100,9 +103,10 @@ def orders_table():
     
     close_db_connection(connection)
 
-def products_table():
+def products_table(data_dir):
     connection = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;', autocommit=True)
-    
+    data_file = os.path.join(data_dir,"products.csv")
+
     # create products table
     try:
         cursor = connection.cursor()
@@ -130,7 +134,7 @@ def products_table():
 
     sleep (0.5)
     print("Inserting values to 'products' table.")
-    with open("../data/products.csv", "r") as products_file:
+    with open(data_file, "r") as products_file:
         products_file.seek(0)
         rows = csv.reader(products_file)
         # skip first line
@@ -162,16 +166,20 @@ def close_db_connection(connection):
 
 if __name__ == '__main__':
 
+    python_prepare_database = Path(__file__).absolute().with_name("prepare_sqlserver.py")
+    parent_directory = os.path.dirname(python_prepare_database)
+    data_dir = os.path.join(os.path.dirname(parent_directory), "data")
+
     print("Create 'public' database...")
     create_database()
     print("Enable CDC on the database...")
     enable_cdc_database()
 
     print("Create 'products' table.")
-    products_table()
+    products_table(data_dir)
     
     print("Create 'orders' table.")
-    orders_table()
+    orders_table(data_dir)
 
 
 

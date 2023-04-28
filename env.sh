@@ -19,7 +19,6 @@ confluent kafka cluster use $CCLOUD_CLUSTER_ID
 
 # Get cluster bootstrap endpoint
 export CCLOUD_BOOTSTRAP_ENDPOINT=$(confluent kafka cluster describe -o json | jq -r .endpoint)
-# echo $CCLOUD_BOOTSTRAP_ENDPOINT
 STRIPPED_CCLOUD_BOOTSTRAP_ENDPOINT=$(echo $CCLOUD_BOOTSTRAP_ENDPOINT | sed 's/SASL_SSL:\/\///')
 
 # use sed to replace kafka-cluster-endpoint with the replacement string
@@ -112,3 +111,22 @@ echo ""
 echo "Creating business metadata"
 curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET  -X POST -H "Content-Type: application/json" \
 --data @team.txt "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/businessmetadatadefs" | jq .
+
+# Read values from resources.json and update the .env file.
+# These resources are created by Terraform
+json=$(cat resources.json)
+
+sql_server=$(echo "$json" | jq -r '.sql_endpoint.value.address')
+mongodbatlas_connection_string=$(echo "$json" | jq -r '.mongodbatlas_connection_string.value'| sed 's/mongodb+srv:\/\///')
+sr_endpoint=$(echo "$json" | jq -r '.schema_registry_rest_endpoint.value')
+
+# Updating the .env file with sed command
+sed -i .bak "s^sql-server^$sql_server^g" .env 
+sed -i .bak "s^mongodb-endpoint^$mongodbatlas_connection_string^g" .env 
+sed -i .bak "s^sr-cluster-endpoint^$sr_endpoint^g" .env 
+
+sleep $sleep_time
+
+#source the .env file 
+echo "Sourcing the .env file"
+source .env
