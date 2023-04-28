@@ -369,7 +369,7 @@ In order to successfully complete this demo you need to install few tools before
 ### CONGRATULATIONS
 
 Congratulations on building your streaming data pipeline with **Stream Designer**. Your complete pipeline should resemble the following one.
-![Alt Text](complete-pipeline.gif)
+![Alt Text](images/complete-pipeline.gif)
 
 ## Code Import
 
