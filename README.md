@@ -25,7 +25,7 @@ In order to successfully complete this demo you need to install few tools before
 
 ## Prerequisites
 
-### Set up Confluent Cloud
+### Confluent Cloud
 
 1. Sign up for a Confluent Cloud account [here](https://www.confluent.io/get-started/).
 1. After verifying your email address, access Confluent Cloud sign-in by navigating [here](https://confluent.cloud).
@@ -33,130 +33,154 @@ In order to successfully complete this demo you need to install few tools before
 
    > **Note:** If you're logging in for the first time you will see a wizard that will walk you through the some tutorials. Minimize this as you will walk through these steps in this guide.
 
-1. Click **+ Add environment**.
+1. Create Confluent Cloud API keys by following [this](https://registry.terraform.io/providers/confluentinc/confluent/latest/docs/guides/sample-project#summary) guide.
+   > **Note:** This is different than Kafka cluster API keys.
 
-   > **Note:** There is a _default_ environment ready in your account upon account creation. You can use this _default_ environment for the purpose of this demo if you do not wish to create an additional environment.
+### SQL Server
 
-   - Specify a meaningful `name` for your environment and then click **Create**.
-     > **Note:** It will take a few minutes to assign the resources to make this new environment available for use.
+1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only supported on Enterprise, Developer, Enterprise Evaluation, and Standard editions.
 
-1. Now that you have an environment, let's create a cluster. Select **Create Cluster**.
-
-   > **Note**: Confluent Cloud clusters are available in 3 types: **Basic**, **Standard**, and **Dedicated**. Basic is intended for development use cases and only support single zone availability. Standard and Dedicated clusters are intended for production use and support Multi-zone deployments. If you’re interested in learning more about the different types of clusters and their associated features and limits, refer to this [documentation](https://docs.confluent.io/current/cloud/clusters/cluster-types.html).
-
-   - Choose the **Basic** cluster type.
-
-   - Click **Begin Configuration**.
-
-   - Choose **AWS** as your Cloud Provider and your preferred Region. In this demo we use Oregon (West2) as the region.
-
-   - Specify a meaningful **Cluster Name** and then review the associated _Configuration & Cost_, _Usage Limits_, and _Uptime SLA_ before clicking **Launch Cluster**.
-
-#### Create an API key pair
-
-1. Select API keys on the navigation menu.
-1. If this is your first API key within your cluster, click **Create key**. If you have set up API keys in your cluster in the past and already have an existing API key, click **+ Add key**.
-1. Select **Global Access**, then click Next.
-1. Save your API key and secret - you will need these during the demo.
-1. After creating and saving the API key, you will see this API key in the Confluent Cloud UI in the API keys tab. If you don’t see the API key populate right away, refresh the browser.
-
-#### Enable Stream Governance Advanced package
-
-1. Navigate to your cluster page and on the right hand-side enable **Stream Goveranance Advanced** package.
-1. Choose **AWS** as the cloud provider and a supported **Region**
-1. Click on **Tags** to create new tags.
-1. Click on the **+Create tag** icon and add the following **Free-form** tags.
-   ```
-   Tag name: prod
-   Description: Data for production environment.
-   Tag name: stag
-   Description: Data for staging environment.
-   Tag name: dev
-   Description: Data for development environment.
-   ```
-1. Create a **Recommended** tag and check **PII** box.
-1. Navigate back to your cluster and click on **Business metadata** and create a new business metadata with following configuration.
-   ```
-   Name: Domain
-   Description: Events for analyzing users behavior.
-   Attribute 1: Team_owner
-   Attribute 2: Slack_contact
-   Attribute 3: Name
-   ```
-1. For more information and detailed instructions visit our [doc](https://docs.confluent.io/cloud/current/stream-governance/index.html) page.
-
-### Setup SQL Server
-
-1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only supported on Enterprise, Developer, Enterprise Evaluation, and Standard editions, so ensure you choose a configuration that supports CDC.
-1. This demo uses Amazon RDS Microsoft SQL Server that is publicly accessible. If your database is in a VPC, follow the instructions on our [doc](https://docs.confluent.io/cloud/current/networking/peering/aws-peering.html) page.
-1. Navigate to https://aws.amazon.com/console/ and log into your account.
-1. Search for **RDS** and click on results.
-1. Click on **Create database** and create an Microsoft SQL Server database using the following configurations and leave everything else as default.
-   ```
-   Creation mode: Standard
-   Engine: Microsoft SQL Server
-   Database management type: Amazon RDS
-   Edition: SQL Server Standard Edition
-   License: license-included
-   Version: SQL Server 2019 15.00.4198.2.v1
-   Template: production
-   DB instance identifier: sql-server-demo
-   Master username: admin
-   Auto generate a password: check the box
-   port: 1433
-   Public access: Yes
-   ```
-1. If you opted in using an auto-generated password, ensure you click on **View credentials details** while the instance is being created to download your password.
+1. This demo uses Amazon RDS Microsoft SQL Server that is publicly accessible.
 
 1. Download and install Microsoft ODBC driver for your operating system from [here](https://docs.microsoft.com/en-us/sql/connect/odbc/microsoft-odbc-driver-for-sql-server?view=sql-server-ver15).
 
-1. You can use DBeaver and connect to your SQL Server and verify that your database is populating correctly in following steps.
+### MongoDB Atlas
 
-1. Update `configure_sqlserver.py` and `produce_orders.py` so the following values match with your database.
+1. Sign up for a free MongoDB Atlas account [here](https://www.mongodb.com/).
 
-   ```
-   server = '<DB_ENDPOINT>'
-   database = 'public'
-   username = '<DB_USERNAME>'
-   password = '<DB_PASSWORD>'
-   ```
-
-1. Run `python3 configure_sqlserver.py`.
-1. This script completes the following task
-   - Creates a database called `public`.
-   - Creates and populates `orders` and `products` tables.
-   - Enables CDC on the database and both tables.
+1. Create an API key pair so Terraform can create resources in the Atlas cluster. Follow the instructions [here](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs#configure-atlas-programmatic-access).
 
 ## Setup
 
-1. Log into Confluent Cloud and navigate to your cluster.
-1. Navigate to the **Topic** tab and click on **+Add topic** and create a new topic with following configuration.
+1. Clone and enter this repository.
 
-   ```
-   click_stream --partitions 1
-   ```
-
-   > Alternatively you can create this topic by using Confluent Cloud CLI and running `confluent kafka topic create click_stream --partitions 1` command.
-
-1. Update `config.ini` file and set the following values with your own Confluent Cloud cluster.
-   ```
-   bootstrap.servers=<BOOTSTRAP.SERVER>
-   sasl.username=<KAFKA_CLUSTER_API>
-   sasl.password=<KAFKA_CLUSTER_SECRET_KEY>
-   ```
-1. Open a `Terminal` window and run the script.
-
-   ```
-   python3 produce_clickstream.py config.ini
+   ```bash
+   git clone https://github.com/confluentinc/demo-current-stream-designer.git
+   cd demo-current-stream-designer
    ```
 
-1. Open anoterh `Terminal` window and create new orders.
-   ```
-   python3 produce_orders.py
-   ```
-1. Log into Confluent Cloud and navigate to Stream Designer tab.
+1. Create a file to manage all the values you'll need through the setup.
 
-1. Click on **+ Create pipeline** icon. Choose a name for your pipeline and create a ksqlDB Cluster.
+   ```bash
+   touch .env
+
+   CONFLUENT_CLOUD_EMAIL=<replace>
+   CONFLUENT_CLOUD_PASSWORD=<replace>
+
+   CCLOUD_API_KEY=api-key
+   CCLOUD_API_SECRET=api-secret
+   CCLOUD_BOOTSTRAP_ENDPOINT=kafka-cluster-endpoint
+
+   CCLOUD_SCHEMA_REGISTRY_API_KEY=sr-key
+   CCLOUD_SCHEMA_REGISTRY_API_SECRET=sr-secret
+   CCLOUD_SCHEMA_REGISTRY_URL=sr-cluster-endpoint
+
+
+   SQL_USERNAME=admin
+   SQL_PASSWORD=db-sd-c0nflu3nt!
+   SQL_SERVER=sql-server-demo.<replace>.us-west-2.rds.amazonaws.com
+   SQL_PORT=1433
+
+   export TF_VAR_confluent_cloud_api_key="<replace>"
+   export TF_VAR_confluent_cloud_api_secret="<replace>"
+   export TF_VAR_mongodbatlas_public_key="<replace>"
+   export TF_VAR_mongodbatlas_private_key="<replace>"
+
+   MONGO_USERNAME=admin
+   MONGO_PASSWORD=db-sd-c0nflu3nt!
+   MONGO_ENDPOINT=demo-stream-designer.<replace>.mongodb.net
+   MONGO_DATABASE_NAME=demo-stream-designer
+
+   ```
+
+1. Update the `.env` file for the following variables with your credentials.
+
+   ```bash
+   CONFLUENT_CLOUD_EMAIL=<replace>
+   CONFLUENT_CLOUD_PASSWORD=<replace>
+   export TF_VAR_confluent_cloud_api_key="<replace>"
+   export TF_VAR_confluent_cloud_api_secret="<replace>"
+   export TF_VAR_mongodbatlas_public_key="<replace>"
+   export TF_VAR_mongodbatlas_private_key="<replace>"
+
+   ```
+
+1. Source the `.env` file.
+   ```bash
+   source .env
+   ```
+
+### Build your cloud infrastructure
+
+1. Navigate to the repo's terraform directory.
+   ```bash
+   cd terraform
+   ```
+1. Log into your AWS account through command line.
+
+1. Initialize Terraform within the directory.
+   ```bash
+   terraform init
+   ```
+1. Create the Terraform plan.
+   ```bash
+   terraform plan -out=myplan
+   ```
+1. Apply the plan to create the infrastructure.
+
+   ```bash
+   terraform apply myplan
+   ```
+
+   > **Note:** Read the `main.tf` configuration file [to see what will be created](./terraform/main.tf).
+
+1. The `terraform apply` command will output MongoDB Atlas connection string. Update your `.env` file to include this information.
+
+1. Get the Microsoft SQL Server endpoint by running the following command
+
+   ```bash
+   terraform output sql_endpoint
+   ```
+
+1. Update your `.env` file to include the sql_enpoint.
+
+1. Source the `.env` file.
+
+   ```bash
+   source .env
+   ```
+
+### Enable CDC on SQL Server database
+
+1. Run the script to enable change data capture (CDC) on all tables of the database
+   ```bash
+   cd demo-current-stream-designer/sql_scripts
+   python3 prepare_sqlserver.py
+   ```
+
+### Create tags and business metadata in Confluent Cloud
+
+1. Run the `./env.sh` script to create the following resources
+
+   - API key pair for the Python client
+   - API key pair for Schema Registery
+   - Tags and business metadata
+
+   ```bash
+   cd demo-current-stream-designer
+   ./env.sh
+   ```
+
+1. Additionally the `env.sh` script updates the `.env` file to include correct values for following variables
+   - CCLOUD_API_KEY
+   - CCLOUD_API_SECRET
+   - CCLOUD_BOOTSTRAP_ENDPOINT
+   - CCLOUD_SCHEMA_REGISTRY_API_KEY
+   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
+   - CCLOUD_SCHEMA_REGISTRY_URL
+
+### Prepare streams
+
 1. Log into Confluent Cloud and navigate to ksqlDB tab and step into your cluster.
 1. Change `auto.offset.reset = Earliest`.
 1. Create a ksqlDB stream off of `click_stream` topic.
@@ -187,6 +211,20 @@ In order to successfully complete this demo you need to install few tools before
    - Name: user clickstreams
 
 ## Demo
+
+1. Open a Terminal window and run the script to create new clickstreams data.
+
+   ```bash
+   cd demo-current-stream-designer/clickstreams_scripts
+   python3 produce_clickstream.py
+   ```
+
+1. Open a second Terminal window and run the script to create new purchase orders.
+
+   ```bash
+   cd demo-current-stream-designer/sql_scripts
+   python3 produce_orders.py
+   ```
 
 1. Log into Confluent Cloud and navigate to **Stream Designer** and step into the pipeline you created earlier.
 1. Click on **Start with SQL** to open the code editor and paste the following code.
@@ -255,7 +293,7 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Update the following variables to match your environment:
 
-   ```
+   ```bash
    database.hostname
    database.password
    kafka.api.key
@@ -268,13 +306,13 @@ In order to successfully complete this demo you need to install few tools before
 1. We want to see how Big Bend Shoes are selling in our store. In order to do that, we need to apply a filter to `orders_and_products` stream.
 1. Click on the right edge of `orders_and_products` stream and hit on **Filter** from list of options.
 1. Create a new filter with the following properties and hit **Save**
-   ```
+   ```bash
    query name: shoes
    filter name: shoes
    filter expression: LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%'
    ```
 1. Click on the right edge of **Filter** component and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
-   ```
+   ```bash
    topic name: big_bend_shoes
    stream name: big_bend_shoes
    ```
@@ -290,7 +328,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Select `clickstreams_global` from the list of topics and hit **Save**.
 1. Click on `configure` link in the stream name and add the following properties and hit **Save**
 
-   ```
+   ```bash
    Name: clickstreams_global
    Key format: JSON
    Value format: JSON_SR
@@ -302,7 +340,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Initiate a join by clicking on the right edge of `orders_stream` and hit on **Join** from list of options.
 1. Add the second stream by innitiating a connection from the right edge of `clickstreams_global` stream.
 1. Create a new join with the following properties and hit **Save**
-   ```
+   ```bash
    query name: orders_clickstreams
    join name: orders_clickstreams
    left input source: orders_stream
@@ -317,7 +355,7 @@ In order to successfully complete this demo you need to install few tools before
    grace period unit: MINUTE
    ```
 1. Click on the right edge of the `Join` component and select **Stream** from the list and create a new Kafka topic and ksqlDB stream with the following properties and hit **Save**
-   ```
+   ```bash
    topic name: orders_enriched
    stream name: orders_enriched
    ```
@@ -326,7 +364,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Click on the right edge of `orders_enriched` Kafka topic and hit on **Sink Connector**.
 1. Look for and provision a MongoDB Atlas Sink Connector.
 1. Re-activate the pipeline and once all components are activated verify the data is showing up in MongoDB database correctly.
-   > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html)page.
+   > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html) page.
 
 ### CONGRATULATIONS
 
@@ -424,6 +462,21 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
+1. The following script will de-activate and delete the pipeline. Note that doing so, will delete your topics and you can't restore them afterwards.
+   ```bash
+   cd demo-current-stream-designer
+   ./teardown_pipeline.sh
+   ```
+2. You can delete the rest of the resources that were created during this demo by executing the following command.
+   ```bash
+   Terraform apply -destory
+   ```
+
 ## References
 
-Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+1. Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+
+1. Terraform guides
+   - Confluent Cloud https://registry.terraform.io/providers/confluentinc/confluent/latest/docs
+   - Amazon RDS https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+   - MongoDB Atlas https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs
