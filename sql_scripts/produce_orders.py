@@ -1,14 +1,16 @@
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 import sql_config
 import csv
+import os
 import pyodbc 
 
 server = sql_config.server
 database = 'public' 
 username = sql_config.username
 password = sql_config.password 
-purchase_count = 10
+purchase_count = 1000
 
 try:
     connection = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;')
@@ -20,9 +22,11 @@ except pyodbc.Error as error:
     print("Failed to connect to SQL Server {}".format(error))
 
 
-def create_order():
+def create_order(data_dir):
     i = 0
-    with open("../data/orders.csv", "r") as orders_file:
+    data_file = os.path.join(data_dir, "orders.csv")
+
+    with open(data_file, "r") as orders_file:
         orders_file.seek(0)
         rows = csv.reader(orders_file)
         # skip first line
@@ -47,7 +51,12 @@ def create_order():
                 sleep(0.2)
 
 if __name__ == '__main__':
-    create_order()
+    
+    python_prepare_database = Path(__file__).absolute().with_name("prepare_sqlserver.py")
+    parent_directory = os.path.dirname(python_prepare_database)
+    data_dir = os.path.join(os.path.dirname(parent_directory), "data")
+
+    create_order(data_dir)
     if(connection):
         connection.close()
         print("SQL Server connection is closed")
