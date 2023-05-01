@@ -10,7 +10,7 @@ server = sql_config.server
 database = 'public' 
 username = sql_config.username
 password = sql_config.password 
-purchase_count = 1000
+purchase_count = 500
 
 try:
     connection = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;')
