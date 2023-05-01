@@ -328,12 +328,11 @@ In order to successfully complete this demo you need to install few tools before
 1. Open a new terminal and run the following command to start consuming
 
    ```bash
-   kafka-console-consumer --consumer.config client.properties --topic big_bend_shoes --bootstrap-server <REPLACE-WITH-YOUR-BOOSTRAP-SERVER>
+   kafka-console-consumer --consumer.config stream_sharing/client.properties --topic big_bend_shoes --from-beginning --bootstrap-server <REPLACE-WITH-YOUR-BOOSTRAP-SERVER>
    ```
-   
+
 </details>
 <br>
-
 
 1. Next, we want to send promotional materials to our online users based on their order and browsing history on our website. To do so, we need do data enrichment.
 1. We will use **Stream Catalog** to find the right clickstreams data.
