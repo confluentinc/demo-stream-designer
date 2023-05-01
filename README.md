@@ -78,18 +78,18 @@ In order to successfully complete this demo you need to install few tools before
 
    SQL_USERNAME=admin
    SQL_PASSWORD=db-sd-c0nflu3nt!
-   SQL_SERVER=sql-server-demo.<replace>.us-west-2.rds.amazonaws.com
+   SQL_SERVER=sql-server
    SQL_PORT=1433
+
+   MONGO_USERNAME=admin
+   MONGO_PASSWORD=db-sd-c0nflu3nt!
+   MONGO_ENDPOINT=mongodb-endpoint
+   MONGO_DATABASE_NAME=demo-stream-designer
 
    export TF_VAR_confluent_cloud_api_key="<replace>"
    export TF_VAR_confluent_cloud_api_secret="<replace>"
    export TF_VAR_mongodbatlas_public_key="<replace>"
    export TF_VAR_mongodbatlas_private_key="<replace>"
-
-   MONGO_USERNAME=admin
-   MONGO_PASSWORD=db-sd-c0nflu3nt!
-   MONGO_ENDPOINT=demo-stream-designer.<replace>.mongodb.net
-   MONGO_DATABASE_NAME=demo-stream-designer
 
    ```
 
