@@ -313,7 +313,26 @@ In order to successfully complete this demo you need to install few tools before
    stream name: big_bend_shoes
    ```
 1. Re-activate the pipeline.
-1. `big_bend_shoes` is now data as a product. Other team in your Confluent Cloud's organization can write consumers against this topic to create dashboards, apps, etc.
+1. `big_bend_shoes` is now data as a product. We can share this stream with our partner retailers so they can see how their products are performing in our stores. We will use **Stream Sharing** to do that.
+<details>
+   <summary><b>Stream Sharing</b></summary>
+
+1. Click on `big_bend_shoes` topic and then click on **+Share** icon on the top right corner of side panel.
+1. Enter a valid recipient email address and double check to see `big_bend_shoes-value` is the selected schema subject.
+1. Hit the **Invite** button.
+1. The recipient can access the shared stream through the **Access** button in their email.
+1. Next, they pick the client and download a configuration file.
+1. Now they can use the configuration file and their consumer application to consume from the shared topic.
+1. In this demo we use `kafka-console-consumer` from Confluent Platform. An example of configuration file is provided in [file](stream_sharing/client.properties.example).
+1. Open a new terminal and run the following command to start consuming
+
+   ```bash
+   kafka-console-consumer --consumer.config client.properties --topic big_bend_shoes --bootstrap-server <REPLACE-WITH-YOUR-BOOSTRAP-SERVER>
+   ```
+
+   </details>
+   <br>
+
 1. Next, we want to send promotional materials to our online users based on their order and browsing history on our website. To do so, we need do data enrichment.
 1. We will use **Stream Catalog** to find the right clickstreams data.
 1. Click on **Stream Catalog** search bar and search for `clickstreams_global` and click on the topic.
