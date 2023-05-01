@@ -314,6 +314,7 @@ In order to successfully complete this demo you need to install few tools before
    ```
 1. Re-activate the pipeline.
 1. `big_bend_shoes` is now data as a product. We can share this stream with our partner retailers so they can see how their products are performing in our stores. We will use **Stream Sharing** to do that.
+
 <details>
    <summary><b>Stream Sharing</b></summary>
 
@@ -329,9 +330,10 @@ In order to successfully complete this demo you need to install few tools before
    ```bash
    kafka-console-consumer --consumer.config client.properties --topic big_bend_shoes --bootstrap-server <REPLACE-WITH-YOUR-BOOSTRAP-SERVER>
    ```
+   
+</details>
+<br>
 
-   </details>
-   <br>
 
 1. Next, we want to send promotional materials to our online users based on their order and browsing history on our website. To do so, we need do data enrichment.
 1. We will use **Stream Catalog** to find the right clickstreams data.
