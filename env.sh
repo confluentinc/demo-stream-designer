@@ -87,24 +87,24 @@ echo ""
 echo "Creating tags"
 curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET \
 --header 'Content-Type: application/json' \
---data '[ { "entityTypes" : [ "sr_schema", "sr_record", "sr_field", "sr_schema" ],"name" : "PII","description" : "Personally Identifiable Information"} ]' \
+--data '[ { "entityTypes" : [ "cf_entity" ],"name" : "PII","description" : "Personally Identifiable Information"} ]' \
 --url "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/tagdefs" | jq .
 
 curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET \
 --header 'Content-Type: application/json' \
---data '[ { "entityTypes" : [ "sr_schema", "sr_record", "sr_field", "sr_schema" ],"name" : "prod","description" : "Data for production environment."} ]' \
---url "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/tagdefs" | jq .
-
-
-curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET \
---header 'Content-Type: application/json' \
---data '[ { "entityTypes" : [ "sr_schema", "sr_record", "sr_field", "sr_schema" ],"name" : "stag","description" : "Data for staging environment."} ]' \
+--data '[ { "entityTypes" : [ "cf_entity" ],"name" : "prod","description" : "Data for production environment."} ]' \
 --url "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/tagdefs" | jq .
 
 
 curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET \
 --header 'Content-Type: application/json' \
---data '[ { "entityTypes" : [ "sr_schema", "sr_record", "sr_field", "sr_schema" ],"name" : "dev","description" : "Data for development environment."} ]' \
+--data '[ { "entityTypes" : [ "cf_entity" ],"name" : "stag","description" : "Data for staging environment."} ]' \
+--url "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/tagdefs" | jq .
+
+
+curl -u $CCLOUD_SCHEMA_REGISTRY_API_KEY:$CCLOUD_SCHEMA_REGISTRY_API_SECRET \
+--header 'Content-Type: application/json' \
+--data '[ { "entityTypes" : [ "cf_entity" ],"name" : "dev","description" : "Data for development environment."} ]' \
 --url "{$CCLOUD_SCHEMA_REGISTRY_URL}/catalog/v1/types/tagdefs" | jq .
 
 echo ""
