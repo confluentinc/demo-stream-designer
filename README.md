@@ -7,6 +7,18 @@ This demo walks you through building streaming data pipelines in minute!
 
 Watch the [demo](https://youtu.be/vc3od1KLU_0?t=1538) during Current 2022 keynote: Reimagining Data Pipelines for the Streaming Era.
 
+---
+
+## Architecture Diagram
+
+This demo uses two data sources (Microsoft SQL Server database and clickstream data through a Python publisher) and streams enriched data to two destinations (MongoDB Atlas database and a different organization through Stream Sharing).
+
+<div align="center"> 
+  <img src="images/arch_diagram.png" width =100% heigth=100%>
+</div>
+
+---
+
 ## Requirements
 
 In order to successfully complete this demo you need to install few tools before getting started.
