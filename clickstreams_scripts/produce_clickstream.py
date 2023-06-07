@@ -18,6 +18,7 @@ import json
 num_users = 5
 num_products = 5
 num_clicks = 100
+
 url_pattern = "https://www.acme.com/product/"
 
 user_ids = []
