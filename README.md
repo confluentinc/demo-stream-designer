@@ -1,5 +1,3 @@
-# Stream Designer Demo
-
 Data pipelines continue to do the heavy-lifting in data integration. In order to immediately act on insights, companies turn to Apache Kafka® to replace legacy, batch-based pipelines with streaming data pipelines. There are still major challenges with building reusable data pipelines on open-source Kafka, like an overreliance on specialized Kafka engineering talent and cumbersome development cycles. These bottlenecks limit the speed at which teams can set data in motion.
 
 Confluent’s Stream Designer is a new visual canvas for rapidly building, testing, and deploying streaming data pipelines powered by Kafka. You can quickly and easily build pipelines graphically or with SQL, leveraging built-in integrations with fully managed connectors, ksqlDB for stream processing, and Kafka topics.
@@ -9,7 +7,7 @@ Watch the [demo](https://youtu.be/vc3od1KLU_0?t=1538) during Current 2022 keynot
 
 ---
 
-## Architecture Diagram
+# Architecture Diagram
 
 This demo uses two data sources (Microsoft SQL Server database and clickstream data through a Python publisher) and streams enriched data to two destinations (MongoDB Atlas database and a different organization through Stream Sharing).
 
@@ -19,7 +17,7 @@ This demo uses two data sources (Microsoft SQL Server database and clickstream d
 
 ---
 
-## Requirements
+# Requirements
 
 In order to successfully complete this demo you need to install few tools before getting started.
 
@@ -35,9 +33,9 @@ In order to successfully complete this demo you need to install few tools before
 
 > **Note:** This demo was built and validate on a Mac (x86).
 
-## Prerequisites
+# Prerequisites
 
-### Confluent Cloud
+## Confluent Cloud
 
 1. Sign up for a Confluent Cloud account [here](https://www.confluent.io/get-started/).
 1. After verifying your email address, access Confluent Cloud sign-in by navigating [here](https://confluent.cloud).
@@ -48,7 +46,7 @@ In order to successfully complete this demo you need to install few tools before
 1. Create Confluent Cloud API keys by following [this](https://registry.terraform.io/providers/confluentinc/confluent/latest/docs/guides/sample-project#summary) guide.
    > **Note:** This is different than Kafka cluster API keys.
 
-### SQL Server
+## SQL Server
 
 1. This demo uses a Microsoft SQL Server Standard Edition hosted on AWS. Change Data Capture (CDC) is only supported on Enterprise, Developer, Enterprise Evaluation, and Standard editions.
 
@@ -56,13 +54,13 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Download and install Microsoft ODBC driver for your operating system from [here](https://docs.microsoft.com/en-us/sql/connect/odbc/microsoft-odbc-driver-for-sql-server?view=sql-server-ver15).
 
-### MongoDB Atlas
+## MongoDB Atlas
 
 1. Sign up for a free MongoDB Atlas account [here](https://www.mongodb.com/).
 
 1. Create an API key pair so Terraform can create resources in the Atlas cluster. Follow the instructions [here](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs#configure-atlas-programmatic-access).
 
-## Setup
+# Setup
 
 1. Clone and enter this repository.
 
@@ -122,7 +120,7 @@ In order to successfully complete this demo you need to install few tools before
    source .env
    ```
 
-### Build your cloud infrastructure
+## Build your cloud infrastructure
 
 1. Navigate to the repo's terraform directory.
    ```bash
@@ -158,7 +156,7 @@ In order to successfully complete this demo you need to install few tools before
    ./env.sh
    ```
 
-### Enable CDC on SQL Server database
+## Enable CDC on SQL Server database
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
@@ -166,7 +164,7 @@ In order to successfully complete this demo you need to install few tools before
    python3 prepare_sqlserver.py
    ```
 
-### Create tags and business metadata in Confluent Cloud
+## Create tags and business metadata in Confluent Cloud
 
 1. Run the `./env.sh` script to create the following resources
 
@@ -187,7 +185,7 @@ In order to successfully complete this demo you need to install few tools before
    - CCLOUD_SCHEMA_REGISTRY_API_SECRET
    - CCLOUD_SCHEMA_REGISTRY_URL
 
-### Prepare streams
+## Prepare streams
 
 1. Log into Confluent Cloud and navigate to ksqlDB tab and step into your cluster.
 1. Change `auto.offset.reset = Earliest`.
@@ -218,7 +216,7 @@ In order to successfully complete this demo you need to install few tools before
    - Slack_contact: #web-optimization
    - Name: user clickstreams
 
-## Demo
+# Demo
 
 1. Open a Terminal window and run the script to create new clickstreams data.
 
@@ -394,12 +392,12 @@ In order to successfully complete this demo you need to install few tools before
 1. Re-activate the pipeline and once all components are activated verify the data is showing up in MongoDB database correctly.
    > For more information and detailed instructions refer to our [doc](https://docs.confluent.io/cloud/current/connectors/cc-mongo-db-sink.html) page.
 
-### CONGRATULATIONS
+# Congratulations!
 
 Congratulations on building your streaming data pipeline with **Stream Designer**. Your complete pipeline should resemble the following one.
 ![Alt Text](images/complete-pipeline.gif)
 
-## Code Import
+# Code Import
 
 1. You can build the entire demo by pasting the following code into the code editor.
 
@@ -486,7 +484,7 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
    );
    ```
 
-## Teardown
+# Teardown
 
 Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
@@ -500,7 +498,7 @@ Ensure all the resources that were created for the demo are deleted so you don't
    Terraform apply -destory
    ```
 
-## References
+# References
 
 1. Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
 
