@@ -100,6 +100,7 @@ In order to successfully complete this demo you need to install few tools before
    export TF_VAR_confluent_cloud_api_secret="<replace>"
    export TF_VAR_mongodbatlas_public_key="<replace>"
    export TF_VAR_mongodbatlas_private_key="<replace>"
+   export TF_VAR_mongodbatlas_org_id="<replace>"
 
    ```
 
@@ -112,7 +113,7 @@ In order to successfully complete this demo you need to install few tools before
    export TF_VAR_confluent_cloud_api_secret="<replace>"
    export TF_VAR_mongodbatlas_public_key="<replace>"
    export TF_VAR_mongodbatlas_private_key="<replace>"
-
+   export TF_VAR_mongodbatlas_org_id="<replace>"
    ```
 
 1. Source the `.env` file.
@@ -134,12 +135,12 @@ In order to successfully complete this demo you need to install few tools before
    ```
 1. Create the Terraform plan.
    ```bash
-   terraform plan -out=myplan
+   terraform plan
    ```
 1. Apply the plan to create the infrastructure.
 
    ```bash
-   terraform apply myplan
+   terraform apply
    ```
 
    > **Note:** Read the `main.tf` configuration file [to see what will be created](./terraform/main.tf).
@@ -160,8 +161,8 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
-   cd demo-stream-designer/sql_scripts
-   python3 prepare_sqlserver.py
+   cd demo-stream-designer
+   python3 sql_scripts/prepare_sqlserver.py
    ```
 
 ## Create tags and business metadata in Confluent Cloud
