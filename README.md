@@ -249,7 +249,7 @@ In order to successfully complete this demo you need to install few tools before
    "after.state.only"='true',
    "connector.class"='SqlServerCdcSource',
    "database.dbname"='public',
-   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
+   "database.hostname"='<SQL_SERVER_HOSTNAME>',
    "database.password"='<SQL_SERVER_PASSWORD>',
    "database.port"='1433',
    "database.server.name"='sql',
@@ -273,7 +273,7 @@ In order to successfully complete this demo you need to install few tools before
    WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE TABLE "products_table"
-   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='products_table', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
          LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
          LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
@@ -282,7 +282,7 @@ In order to successfully complete this demo you need to install few tools before
       GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
 
    CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
-   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT CUSTOMER_ID,
          EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
          PRODUCT_ID,
@@ -291,7 +291,7 @@ In order to successfully complete this demo you need to install few tools before
       PARTITION BY PRODUCT_ID;
 
    CREATE OR REPLACE STREAM "orders_and_products"
-   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_and_products', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT *
       FROM "orders_stream_productid_rekeyed" O
          INNER JOIN "products_table" P
@@ -407,7 +407,7 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
    "after.state.only"='true',
    "connector.class"='SqlServerCdcSource',
    "database.dbname"='public',
-   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
+   "database.hostname"='<SQL_SERVER_HOSTNAME>',
    "database.password"='<SQL_SERVER_PASSWORD>',
    "database.port"='1433',
    "database.server.name"='sql',
@@ -428,7 +428,7 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
    WITH (kafka_topic='sql.dbo.orders', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING , USER_ID STRING , VIEW_TIME INTEGER )
-   WITH (kafka_topic='clickstreams_global', partitions=1, value_format='JSON_SR');
+   WITH (kafka_topic='clickstreams_global', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE STREAM "orders_enriched"
    WITH (kafka_topic='orders_enriched', partitions=1, value_format='JSON_SR')
@@ -440,7 +440,7 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
    WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE TABLE "products_table"
-   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='products_table', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
          LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
          LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
@@ -449,7 +449,7 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
       GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
 
    CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
-   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT CUSTOMER_ID,
          EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
          PRODUCT_ID,
@@ -458,14 +458,14 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
       PARTITION BY PRODUCT_ID;
 
    CREATE OR REPLACE STREAM "orders_and_products"
-   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_and_products', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT *
       FROM "orders_stream_productid_rekeyed" O
          INNER JOIN "products_table" P
          ON O.PRODUCT_ID = P.PRODUCT_ID;
 
    CREATE OR REPLACE STREAM "big_bend_shoes"
-   WITH (kafka_topic='big_bend_shoes', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='big_bend_shoes', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT *
       FROM "orders_and_products"
       WHERE LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%';
