@@ -2,15 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "5.5.0"
     }
     confluent = {
       source  = "confluentinc/confluent"
-      version = "1.17.0"
+      version = "1.47.0"
     }
     mongodbatlas = {
       source  = "mongodb/mongodbatlas"
-      version = "1.8.0"
+      version = "1.10.0"
     }
   }
 }
@@ -44,7 +44,7 @@ provider "mongodbatlas" {
 }
 
 resource "confluent_environment" "demo" {
-  display_name = "Demo_Stream_Designer"
+  display_name = "Demo"
 }
 
 data "confluent_schema_registry_region" "advanced" {
@@ -137,6 +137,35 @@ resource "confluent_kafka_topic" "click_stream" {
   }
 }
 
+# Create more click_stream topics to tag them later
+resource "confluent_kafka_topic" "clickstreams" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.basic.id
+  }
+
+  topic_name       = "clickstreams"
+  rest_endpoint    = confluent_kafka_cluster.basic.rest_endpoint
+  partitions_count = 1
+  credentials {
+    key    = confluent_api_key.app-manager-kafka-api-key.id
+    secret = confluent_api_key.app-manager-kafka-api-key.secret
+  }
+}
+resource "confluent_kafka_topic" "clickstream" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.basic.id
+  }
+
+  topic_name       = "clickstream"
+  rest_endpoint    = confluent_kafka_cluster.basic.rest_endpoint
+  partitions_count = 1
+  credentials {
+    key    = confluent_api_key.app-manager-kafka-api-key.id
+    secret = confluent_api_key.app-manager-kafka-api-key.secret
+  }
+}
+
+
 # Create a service account for ksqlDB 
 resource "confluent_service_account" "app-ksql" {
   display_name = "app-ksql"
@@ -181,14 +210,14 @@ resource "confluent_ksql_cluster" "demo-ksql" {
 
 # Create Amazon RDS (Microsoft SQL Server)
 resource "aws_db_instance" "demo-stream-designer" {
-  identifier     = var.rds_instance_identifier
-  engine         = "sqlserver-se"
-  engine_version = "15.00"
-  instance_class = var.rds_instance_class
-  username       = var.rds_username
-  password       = var.rds_password
-  port           = 1433
-  license_model  = "license-included"
+  identifier          = var.rds_instance_identifier
+  engine              = "sqlserver-se"
+  engine_version      = "15.00"
+  instance_class      = var.rds_instance_class
+  username            = var.rds_username
+  password            = var.rds_password
+  port                = 1433
+  license_model       = "license-included"
   allocated_storage   = 20
   storage_encrypted   = false
   skip_final_snapshot = true
@@ -199,10 +228,15 @@ resource "aws_db_instance" "demo-stream-designer" {
   }
 }
 
+# Create a Project
+resource "mongodbatlas_project" "atlas-project" {
+  org_id = var.mongodbatlas_org_id
+  name   = var.mongodbatlas_project_name
+}
 
 # Create MongoDB Atlas resources
 resource "mongodbatlas_cluster" "demo-stream-designer" {
-  project_id = var.mongodbatlas_project_id
+  project_id = mongodbatlas_project.atlas-project.id
   name       = "demo-stream-designer"
 
   # Provider Settings "block"
@@ -213,7 +247,7 @@ resource "mongodbatlas_cluster" "demo-stream-designer" {
 }
 
 resource "mongodbatlas_project_ip_access_list" "demo-stream-designer-ip" {
-  project_id = var.mongodbatlas_project_id
+  project_id = mongodbatlas_project.atlas-project.id
   cidr_block = "0.0.0.0/0"
   comment    = "Allow connections from anywhere for demo purposes"
 }
@@ -222,7 +256,7 @@ resource "mongodbatlas_project_ip_access_list" "demo-stream-designer-ip" {
 resource "mongodbatlas_database_user" "demo-stream-designer-db-user" {
   username           = var.mongodbatlas_database_username
   password           = var.mongodbatlas_database_password
-  project_id         = var.mongodbatlas_project_id
+  project_id         = mongodbatlas_project.atlas-project.id
   auth_database_name = "admin"
 
   roles {
