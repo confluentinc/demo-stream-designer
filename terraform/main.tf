@@ -44,7 +44,7 @@ provider "mongodbatlas" {
 }
 
 resource "confluent_environment" "demo" {
-  display_name = "Demo"
+  display_name = "Demo_Stream_Designer"
 }
 
 data "confluent_schema_registry_region" "advanced" {
