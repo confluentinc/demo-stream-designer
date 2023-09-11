@@ -156,17 +156,18 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-stream-designer
    ./env.sh
    ```
-1. The `env.sh` creates the the folllowing resources
-   - API key pair for the Python client
-   - API key pair for Schema Registery
-   - Tags and business metadata
-     And updates the `.env` file to to include correct values for following variables
-   - CCLOUD_API_KEY
-   - CCLOUD_API_SECRET
-   - CCLOUD_BOOTSTRAP_ENDPOINT
-   - CCLOUD_SCHEMA_REGISTRY_API_KEY
-   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
-   - CCLOUD_SCHEMA_REGISTRY_URL
+> The `env.sh` creates the following resources
+   > - API key pair for the Python client
+   > - API key pair for Schema Registry
+   > - Tags and business metadata
+
+> Additionally, it updates the `.env` file to include correct values for the following variables
+  > - CCLOUD_API_KEY
+  > - CCLOUD_API_SECRET
+  > - CCLOUD_BOOTSTRAP_ENDPOINT
+  > - CCLOUD_SCHEMA_REGISTRY_API_KEY
+  > - CCLOUD_SCHEMA_REGISTRY_API_SECRET
+  > - CCLOUD_SCHEMA_REGISTRY_URL
 
 ## Enable CDC on SQL Server database
 
