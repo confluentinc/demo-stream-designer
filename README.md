@@ -156,6 +156,17 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-stream-designer
    ./env.sh
    ```
+1. The `env.sh` creates the the folllowing resources
+   - API key pair for the Python client
+   - API key pair for Schema Registery
+   - Tags and business metadata
+     And updates the `.env` file to to include correct values for following variables
+   - CCLOUD_API_KEY
+   - CCLOUD_API_SECRET
+   - CCLOUD_BOOTSTRAP_ENDPOINT
+   - CCLOUD_SCHEMA_REGISTRY_API_KEY
+   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
+   - CCLOUD_SCHEMA_REGISTRY_URL
 
 ## Enable CDC on SQL Server database
 
@@ -164,27 +175,6 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-stream-designer
    python3 sql_scripts/prepare_sqlserver.py
    ```
-
-## Create tags and business metadata in Confluent Cloud
-
-1. Run the `./env.sh` script to create the following resources
-
-   - API key pair for the Python client
-   - API key pair for Schema Registery
-   - Tags and business metadata
-
-   ```bash
-   cd demo-stream-designer
-   ./env.sh
-   ```
-
-1. Additionally the `env.sh` script updates the `.env` file to include correct values for following variables
-   - CCLOUD_API_KEY
-   - CCLOUD_API_SECRET
-   - CCLOUD_BOOTSTRAP_ENDPOINT
-   - CCLOUD_SCHEMA_REGISTRY_API_KEY
-   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
-   - CCLOUD_SCHEMA_REGISTRY_URL
 
 ## Prepare streams
 
@@ -489,19 +479,23 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
+1. If you shared a stream through **Stream Sharing**, navigate to Confluent Cloud web UI. Click on **Stream shares** on the left hand-side and follow the instructions to stop sharing streams.
+
 1. The following script will de-activate and delete the pipeline. Note that doing so, will delete your topics and you can't restore them afterwards.
    ```bash
    cd demo-stream-designer
    ./teardown_pipeline.sh
    ```
-2. You can delete the rest of the resources that were created during this demo by executing the following command.
+1. You can delete the rest of the resources that were created during this demo by executing the following command.
    ```bash
-   Terraform apply -destory
+   Terraform destory
    ```
 
 # References
 
 1. Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+
+1. Review the ksqlDB [recipe](https://developer.confluent.io/tutorials/omnichannel-commerce/confluent.html).
 
 1. Terraform guides
    - Confluent Cloud https://registry.terraform.io/providers/confluentinc/confluent/latest/docs
