@@ -103,7 +103,7 @@ In order to successfully complete this demo you need to install few tools before
    source .env
    ```
 
-   > **Note:**: if you don't source `.env` file you'll be prompted to manually provide the values through command line when running Terraform commands.
+   > **Note:** if you don't source `.env` file you'll be prompted to manually provide the values through command line when running Terraform commands.
 
 ## Build your cloud infrastructure
 
@@ -401,7 +401,7 @@ Ensure all the resources that were created for the demo are deleted so you don't
    ```
 2. You can delete the rest of the resources that were created during this demo by executing the following command.
    ```bash
-   Terraform apply -destory
+   Terraform -destory
    ```
 
 # References

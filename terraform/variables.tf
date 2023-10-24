@@ -50,10 +50,17 @@ variable "mongodbatlas_private_key" {
   type        = string
 }
 
-variable "mongodbatlas_project_id" {
-  description = "Project ID for MongoDB Atlas"
+# Atlas Organization ID 
+variable "mongodbatlas_org_id" {
   type        = string
-  default     = "63dc53eda8fab265979cafd9"
+  description = "MongoDB Atlas Organization ID"
+}
+
+# Atlas Project Name
+variable "mongodbatlas_project_name" {
+  type        = string
+  description = "MongoDB Atlas Project Name"
+  default     = "demo-stream-designer"
 }
 
 variable "mongodbatlas_region" {

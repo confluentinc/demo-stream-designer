@@ -9,8 +9,8 @@ output "mongodbatlas_connection_string" {
 }
 
 output "kafka_cluster_bootsrap_endpoint"{
-    description = "The bootstrap endpoint used by Kafka clients to connect to the Kafka cluster."
-    value = confluent_kafka_cluster.basic.bootstrap_endpoint
+  description = "The bootstrap endpoint used by Kafka clients to connect to the Kafka cluster."
+  value = confluent_kafka_cluster.basic.bootstrap_endpoint
 }
 
 output "schema_registry_rest_endpoint" {

@@ -2,15 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "5.16.2"
     }
     confluent = {
       source  = "confluentinc/confluent"
-      version = "1.17.0"
+      version = "1.51.0"
     }
     mongodbatlas = {
       source  = "mongodb/mongodbatlas"
-      version = "1.8.0"
+      version = "1.12.1"
     }
   }
 }
@@ -199,10 +199,16 @@ resource "aws_db_instance" "demo-stream-designer" {
   }
 }
 
+# Create a Project
+resource "mongodbatlas_project" "atlas-project" {
+  org_id = var.mongodbatlas_org_id
+  name   = var.mongodbatlas_project_name
+}
+
 
 # Create MongoDB Atlas resources
 resource "mongodbatlas_cluster" "demo-stream-designer" {
-  project_id = var.mongodbatlas_project_id
+  project_id = mongodbatlas_project.atlas-project.id
   name       = "demo-stream-designer"
 
   # Provider Settings "block"
@@ -213,7 +219,7 @@ resource "mongodbatlas_cluster" "demo-stream-designer" {
 }
 
 resource "mongodbatlas_project_ip_access_list" "demo-stream-designer-ip" {
-  project_id = var.mongodbatlas_project_id
+  project_id = mongodbatlas_project.atlas-project.id
   cidr_block = "0.0.0.0/0"
   comment    = "Allow connections from anywhere for demo purposes"
 }
@@ -222,7 +228,7 @@ resource "mongodbatlas_project_ip_access_list" "demo-stream-designer-ip" {
 resource "mongodbatlas_database_user" "demo-stream-designer-db-user" {
   username           = var.mongodbatlas_database_username
   password           = var.mongodbatlas_database_password
-  project_id         = var.mongodbatlas_project_id
+  project_id         = mongodbatlas_project.atlas-project.id
   auth_database_name = "admin"
 
   roles {
