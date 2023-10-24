@@ -30,8 +30,9 @@ In order to successfully complete this demo you need to install few tools before
   ```
   pip3 install pyodbc
   ```
+- Download and Install Terraform [here](https://developer.hashicorp.com/terraform/downloads?ajs_aid=837a4ee4-253b-4b3d-bf11-952575792ad1&product_intent=terraform)
 
-> **Note:** This demo was built and validate on a Mac (x86).
+  > **Note:** This demo was built and validate on a Mac (x86).
 
 # Prerequisites
 
@@ -69,41 +70,15 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-stream-designer
    ```
 
-1. Create a file to manage all the values you'll need through the setup.
+1. Create an `.accounts` file by running the following command.
 
    ```bash
-   touch .env
-
-   CONFLUENT_CLOUD_EMAIL=<replace>
-   CONFLUENT_CLOUD_PASSWORD=<replace>
-
-   CCLOUD_API_KEY=api-key
-   CCLOUD_API_SECRET=api-secret
-   CCLOUD_BOOTSTRAP_ENDPOINT=kafka-cluster-endpoint
-
-   CCLOUD_SCHEMA_REGISTRY_API_KEY=sr-key
-   CCLOUD_SCHEMA_REGISTRY_API_SECRET=sr-secret
-   CCLOUD_SCHEMA_REGISTRY_URL=sr-cluster-endpoint
-
-
-   SQL_USERNAME=admin
-   SQL_PASSWORD=db-sd-c0nflu3nt!
-   SQL_SERVER=sql-server
-   SQL_PORT=1433
-
-   MONGO_USERNAME=admin
-   MONGO_PASSWORD=db-sd-c0nflu3nt!
-   MONGO_ENDPOINT=mongodb-endpoint
-   MONGO_DATABASE_NAME=demo-stream-designer
-
-   export TF_VAR_confluent_cloud_api_key="<replace>"
-   export TF_VAR_confluent_cloud_api_secret="<replace>"
-   export TF_VAR_mongodbatlas_public_key="<replace>"
-   export TF_VAR_mongodbatlas_private_key="<replace>"
-
+   echo "CONFLUENT_CLOUD_EMAIL=add_your_email\nCONFLUENT_CLOUD_PASSWORD=add_your_password\nexport TF_VAR_confluent_cloud_api_key=\"add_your_api_key\"\nexport TF_VAR_confluent_cloud_api_secret=\"add_your_api_secret\"\nexport TF_VAR_mongodbatlas_public_key=\"add_your_public_key\"\nexport TF_VAR_mongodbatlas_private_key=\"add_your_private_key\"\nexport TF_VAR_mongodbatlas_org_id=\"add_your_org_id\"" > .accounts
    ```
 
-1. Update the `.env` file for the following variables with your credentials.
+   > **Note:** This repo ignores `.accounts` file
+
+1. Update the `.accounts` file for the following variables with your credentials.
 
    ```bash
    CONFLUENT_CLOUD_EMAIL=<replace>
@@ -115,10 +90,20 @@ In order to successfully complete this demo you need to install few tools before
 
    ```
 
-1. Source the `.env` file.
+1. Navigate to the home directory of the project and run `create_env.sh` script. This bash script copies the content of `.accounts` file into a new file called `.env` and append additional variables to it.
+
+   ```bash
+   cd demo-stream-designer
+   ./create_env.sh
+   ```
+
+1. Source `.env` file.
+
    ```bash
    source .env
    ```
+
+   > **Note:**: if you don't source `.env` file you'll be prompted to manually provide the values through command line when running Terraform commands.
 
 ## Build your cloud infrastructure
 
@@ -134,56 +119,49 @@ In order to successfully complete this demo you need to install few tools before
    ```
 1. Create the Terraform plan.
    ```bash
-   terraform plan -out=myplan
+   terraform plan
    ```
 1. Apply the plan to create the infrastructure.
 
    ```bash
-   terraform apply myplan
+   terraform apply
    ```
 
    > **Note:** Read the `main.tf` configuration file [to see what will be created](./terraform/main.tf).
 
-1. Write the output of `terraform` to a JSON file. The `env.sh` script will parse the JSON file to update the `.env` file.
+1. Write the output of `terraform` to a JSON file. The `setup.sh` script will parse the JSON file to update the `.env` file.
 
    ```bash
    terraform output -json > ../resources.json
    ```
 
-1. Run the `env.sh` script.
+1. Run the `setup.sh` script.
+
    ```bash
    cd demo-stream-designer
-   ./env.sh
+   ./setup.sh
    ```
 
-## Enable CDC on SQL Server database
+1. This script achieves the following:
+
+   - Creates an API key pair that will be used in connectors' configuration files for authentication purposes.
+   - Creates an API key pair for Schema Registry
+   - Creates Tags and business metadata
+   - Updates the `.env` file to replace the remaining variables with the newly generated values.
+
+1. Source `.env` file.
+
+   ```bash
+   source .env
+   ```
+
+## Prepare the Database for Change Data Capture
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
    cd demo-stream-designer/sql_scripts
    python3 prepare_sqlserver.py
    ```
-
-## Create tags and business metadata in Confluent Cloud
-
-1. Run the `./env.sh` script to create the following resources
-
-   - API key pair for the Python client
-   - API key pair for Schema Registery
-   - Tags and business metadata
-
-   ```bash
-   cd demo-stream-designer
-   ./env.sh
-   ```
-
-1. Additionally the `env.sh` script updates the `.env` file to include correct values for following variables
-   - CCLOUD_API_KEY
-   - CCLOUD_API_SECRET
-   - CCLOUD_BOOTSTRAP_ENDPOINT
-   - CCLOUD_SCHEMA_REGISTRY_API_KEY
-   - CCLOUD_SCHEMA_REGISTRY_API_SECRET
-   - CCLOUD_SCHEMA_REGISTRY_URL
 
 ## Prepare streams
 
@@ -399,90 +377,18 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 # Code Import
 
-1. You can build the entire demo by pasting the following code into the code editor.
+1. You can build the entire demo by pasting the complete ksqlDB code directly into the code editor. To do so, run
 
-   ```sql
-   CREATE SOURCE CONNECTOR "SqlServerCdcSourceConnector_0" WITH (
-   "after.state.only"='true',
-   "connector.class"='SqlServerCdcSource',
-   "database.dbname"='public',
-   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
-   "database.password"='<SQL_SERVER_PASSWORD>',
-   "database.port"='1433',
-   "database.server.name"='sql',
-   "database.user"='admin',
-   "kafka.api.key"='<KAFKA_API_KEY>',
-   "kafka.api.secret"='<KAFKA_API_SECRET>',
-   "kafka.auth.mode"='KAFKA_API_KEY',
-   "max.batch.size"='1',
-   "output.data.format"='JSON_SR',
-   "output.key.format"='JSON',
-   "poll.interval.ms"='1',
-   "snapshot.mode"='initial',
-   "table.include.list"='dbo.products, dbo.orders',
-   "tasks.max"='1'
-   );
-
-   CREATE OR REPLACE STREAM "orders_stream" (CUSTOMER_ID STRING, ORDER_ID STRING KEY, PRODUCT_ID STRING, PURCHASE_TIMESTAMP STRING)
-   WITH (kafka_topic='sql.dbo.orders', partitions=1, key_format='JSON', value_format='JSON_SR');
-
-   CREATE OR REPLACE STREAM "clickstreams_global" (IP_ADDRESS STRING, PAGE_URL STRING, PRODUCT_ID STRING , USER_ID STRING , VIEW_TIME INTEGER )
-   WITH (kafka_topic='clickstreams_global', partitions=1, value_format='JSON_SR');
-
-   CREATE OR REPLACE STREAM "orders_enriched"
-   WITH (kafka_topic='orders_enriched', partitions=1, value_format='JSON_SR')
-   AS SELECT * FROM "orders_stream" o INNER JOIN "clickstreams_global" c
-      WITHIN 1 HOUR GRACE PERIOD 1 MINUTE
-   ON o.customer_id = c.user_id;
-
-   CREATE OR REPLACE STREAM "products_stream" (PRODUCT_ID STRING KEY, PRODUCT_NAME STRING, PRODUCT_RATING DOUBLE, SALE_PRICE INTEGER)
-   WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
-
-   CREATE OR REPLACE TABLE "products_table"
-   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
-      SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
-         LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
-         LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
-         LATEST_BY_OFFSET(SALE_PRICE) AS SALE_PRICE
-      FROM "products_stream"
-      GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
-
-   CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
-   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
-      SELECT CUSTOMER_ID,
-         EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
-         PRODUCT_ID,
-         PURCHASE_TIMESTAMP
-      FROM "orders_stream"
-      PARTITION BY PRODUCT_ID;
-
-   CREATE OR REPLACE STREAM "orders_and_products"
-   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
-      SELECT *
-      FROM "orders_stream_productid_rekeyed" O
-         INNER JOIN "products_table" P
-         ON O.PRODUCT_ID = P.PRODUCT_ID;
-
-   CREATE OR REPLACE STREAM "big_bend_shoes"
-   WITH (kafka_topic='big_bend_shoes', partitions=1, value_format='JSON_SR') AS
-      SELECT *
-      FROM "orders_and_products"
-      WHERE LCASE(P_PRODUCT_NAME) LIKE '%big bend shoes%';
-
-   CREATE SINK CONNECTOR "MongoDbAtlasSinkConnector_0" WITH (
-   "connection.host"='<MONGODB_ENDPOINT>',
-   "connection.password"='<DATABASE_PASSWORD>',
-   "connection.user"='<DATABASE_USER>',
-   "connector.class"='MongoDbAtlasSink',
-   "database"='<DATABASE_NAME>',
-   "input.data.format"='JSON_SR',
-   "kafka.api.key"='<KAFKA_API_KEY>',
-   "kafka.api.secret"='<KAFKA_API_SECRET>',
-   "kafka.auth.mode"='KAFKA_API_KEY',
-   "tasks.max"='1',
-   "topics"='orders_enriched'
-   );
+   ```bash
+   cd demo-stream-designer
+   ./generate_pipeline.sh
    ```
+
+1. The `generate_pipeline.sh` first creates a `pipeline_template.sql` file which doesn't include your credentials (such as Kafka API keys, database endpoints, etc). Then, it creates the `pipeline.sql` and update the credentials using the `.env` file.
+
+   > **Note**: This repo ignores `pipeline.sql`.
+
+1. Copy the content of `pipeline.sql` and paste into Code Import and hit **Apply Changes** and then **Activate**.
 
 # Teardown
 

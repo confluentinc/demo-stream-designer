@@ -102,12 +102,15 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.accounts
 .env
 .venv
 env/
 venv/
 ENV/
 env.bak/
+pipeline.sql
+pipeline.sql.bak
 venv.bak/
 *.properties
 resources.json
