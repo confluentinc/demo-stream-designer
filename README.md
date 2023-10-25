@@ -401,7 +401,7 @@ Ensure all the resources that were created for the demo are deleted so you don't
    ```
 2. You can delete the rest of the resources that were created during this demo by executing the following command.
    ```bash
-   Terraform -destory
+   Terraform destory
    ```
 
 # References
