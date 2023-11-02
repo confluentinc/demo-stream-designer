@@ -1,5 +1,5 @@
 output "sql_endpoint" {
-  value = aws_db_instance.demo-stream-designer
+  value     = aws_db_instance.demo-stream-designer
   sensitive = true
 }
 
@@ -15,5 +15,5 @@ output "kafka_cluster_bootsrap_endpoint"{
 
 output "schema_registry_rest_endpoint" {
   description = "The HTTP endpoint of the Schema Registry cluster."
-  value = confluent_schema_registry_cluster.advanced.rest_endpoint
+  value       = confluent_schema_registry_cluster.advanced.rest_endpoint
 }

@@ -74,6 +74,7 @@ In order to successfully complete this demo you need to install few tools before
 
    ```bash
    echo "CONFLUENT_CLOUD_EMAIL=add_your_email\nCONFLUENT_CLOUD_PASSWORD=add_your_password\nexport TF_VAR_confluent_cloud_api_key=\"add_your_api_key\"\nexport TF_VAR_confluent_cloud_api_secret=\"add_your_api_secret\"\nexport TF_VAR_mongodbatlas_public_key=\"add_your_public_key\"\nexport TF_VAR_mongodbatlas_private_key=\"add_your_private_key\"\nexport TF_VAR_mongodbatlas_org_id=\"add_your_org_id\"" > .accounts
+
    ```
 
    > **Note:** This repo ignores `.accounts` file
@@ -87,7 +88,7 @@ In order to successfully complete this demo you need to install few tools before
    export TF_VAR_confluent_cloud_api_secret="<replace>"
    export TF_VAR_mongodbatlas_public_key="<replace>"
    export TF_VAR_mongodbatlas_private_key="<replace>"
-
+   export TF_VAR_mongodbatlas_org_id="<replace>"
    ```
 
 1. Navigate to the home directory of the project and run `create_env.sh` script. This bash script copies the content of `.accounts` file into a new file called `.env` and append additional variables to it.
@@ -142,6 +143,21 @@ In order to successfully complete this demo you need to install few tools before
    ./setup.sh
    ```
 
+   > The `env.sh` creates the following resources
+   >
+   > - API key pair for the Python client
+   > - API key pair for Schema Registry
+   > - Tags and business metadata
+
+> Additionally, it updates the `.env` file to include correct values for the following variables
+>
+> - CCLOUD_API_KEY
+> - CCLOUD_API_SECRET
+> - CCLOUD_BOOTSTRAP_ENDPOINT
+> - CCLOUD_SCHEMA_REGISTRY_API_KEY
+> - CCLOUD_SCHEMA_REGISTRY_API_SECRET
+> - CCLOUD_SCHEMA_REGISTRY_URL
+
 1. This script achieves the following:
 
    - Creates an API key pair that will be used in connectors' configuration files for authentication purposes.
@@ -159,8 +175,13 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
+   <<<<<<< HEAD
    cd demo-stream-designer/sql_scripts
    python3 prepare_sqlserver.py
+   =======
+   cd demo-stream-designer
+   python3 sql_scripts/prepare_sqlserver.py
+   >>>>>>> master
    ```
 
 ## Prepare streams
@@ -226,7 +247,7 @@ In order to successfully complete this demo you need to install few tools before
    "after.state.only"='true',
    "connector.class"='SqlServerCdcSource',
    "database.dbname"='public',
-   "database.hostname"='sql-server-demo.***.us-west-2.rds.amazonaws.com',
+   "database.hostname"='<SQL_SERVER_HOSTNAME>',
    "database.password"='<SQL_SERVER_PASSWORD>',
    "database.port"='1433',
    "database.server.name"='sql',
@@ -250,7 +271,7 @@ In order to successfully complete this demo you need to install few tools before
    WITH (kafka_topic='sql.dbo.products', partitions=1, key_format='JSON', value_format='JSON_SR');
 
    CREATE OR REPLACE TABLE "products_table"
-   WITH (kafka_topic='products_table', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='products_table', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id') AS PRODUCT_ID,
          LATEST_BY_OFFSET(PRODUCT_NAME) AS PRODUCT_NAME,
          LATEST_BY_OFFSET(PRODUCT_RATING) AS PRODUCT_RATING,
@@ -259,7 +280,7 @@ In order to successfully complete this demo you need to install few tools before
       GROUP BY EXTRACTJSONFIELD(PRODUCT_ID, '$.product_id');
 
    CREATE OR REPLACE STREAM "orders_stream_productid_rekeyed"
-   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_stream_productid_rekeyed', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT CUSTOMER_ID,
          EXTRACTJSONFIELD(ORDER_ID, '$.order_id') AS ORDER_ID,
          PRODUCT_ID,
@@ -268,7 +289,7 @@ In order to successfully complete this demo you need to install few tools before
       PARTITION BY PRODUCT_ID;
 
    CREATE OR REPLACE STREAM "orders_and_products"
-   WITH (kafka_topic='orders_and_products', partitions=1, value_format='JSON_SR') AS
+   WITH (kafka_topic='orders_and_products', partitions=1, key_format='JSON', value_format='JSON_SR') AS
       SELECT *
       FROM "orders_stream_productid_rekeyed" O
          INNER JOIN "products_table" P
@@ -379,10 +400,10 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 1. You can build the entire demo by pasting the complete ksqlDB code directly into the code editor. To do so, run
 
-   ```bash
-   cd demo-stream-designer
-   ./generate_pipeline.sh
-   ```
+```bash
+cd demo-stream-designer
+./generate_pipeline.sh
+```
 
 1. The `generate_pipeline.sh` first creates a `pipeline_template.sql` file which doesn't include your credentials (such as Kafka API keys, database endpoints, etc). Then, it creates the `pipeline.sql` and update the credentials using the `.env` file.
 
@@ -394,12 +415,14 @@ Congratulations on building your streaming data pipeline with **Stream Designer*
 
 Ensure all the resources that were created for the demo are deleted so you don't incur additional charges.
 
+1. If you shared a stream through **Stream Sharing**, navigate to Confluent Cloud web UI. Click on **Stream shares** on the left hand-side and follow the instructions to stop sharing streams.
+
 1. The following script will de-activate and delete the pipeline. Note that doing so, will delete your topics and you can't restore them afterwards.
    ```bash
    cd demo-stream-designer
    ./teardown_pipeline.sh
    ```
-2. You can delete the rest of the resources that were created during this demo by executing the following command.
+1. You can delete the rest of the resources that were created during this demo by executing the following command.
    ```bash
    Terraform destory
    ```
@@ -407,6 +430,8 @@ Ensure all the resources that were created for the demo are deleted so you don't
 # References
 
 1. Watch the [webinar](https://www.confluent.io/resources/online-talk/stream-designer-build-apache-kafka-r-pipelines-visually/) on demand!
+
+1. Review the ksqlDB [recipe](https://developer.confluent.io/tutorials/omnichannel-commerce/confluent.html).
 
 1. Terraform guides
    - Confluent Cloud https://registry.terraform.io/providers/confluentinc/confluent/latest/docs

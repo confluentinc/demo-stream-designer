@@ -137,6 +137,35 @@ resource "confluent_kafka_topic" "click_stream" {
   }
 }
 
+# Create more click_stream topics to tag them later
+resource "confluent_kafka_topic" "clickstreams" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.basic.id
+  }
+
+  topic_name       = "clickstreams"
+  rest_endpoint    = confluent_kafka_cluster.basic.rest_endpoint
+  partitions_count = 1
+  credentials {
+    key    = confluent_api_key.app-manager-kafka-api-key.id
+    secret = confluent_api_key.app-manager-kafka-api-key.secret
+  }
+}
+resource "confluent_kafka_topic" "clickstream" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.basic.id
+  }
+
+  topic_name       = "clickstream"
+  rest_endpoint    = confluent_kafka_cluster.basic.rest_endpoint
+  partitions_count = 1
+  credentials {
+    key    = confluent_api_key.app-manager-kafka-api-key.id
+    secret = confluent_api_key.app-manager-kafka-api-key.secret
+  }
+}
+
+
 # Create a service account for ksqlDB 
 resource "confluent_service_account" "app-ksql" {
   display_name = "app-ksql"
@@ -181,14 +210,14 @@ resource "confluent_ksql_cluster" "demo-ksql" {
 
 # Create Amazon RDS (Microsoft SQL Server)
 resource "aws_db_instance" "demo-stream-designer" {
-  identifier     = var.rds_instance_identifier
-  engine         = "sqlserver-se"
-  engine_version = "15.00"
-  instance_class = var.rds_instance_class
-  username       = var.rds_username
-  password       = var.rds_password
-  port           = 1433
-  license_model  = "license-included"
+  identifier          = var.rds_instance_identifier
+  engine              = "sqlserver-se"
+  engine_version      = "15.00"
+  instance_class      = var.rds_instance_class
+  username            = var.rds_username
+  password            = var.rds_password
+  port                = 1433
+  license_model       = "license-included"
   allocated_storage   = 20
   storage_encrypted   = false
   skip_final_snapshot = true
@@ -204,7 +233,6 @@ resource "mongodbatlas_project" "atlas-project" {
   org_id = var.mongodbatlas_org_id
   name   = var.mongodbatlas_project_name
 }
-
 
 # Create MongoDB Atlas resources
 resource "mongodbatlas_cluster" "demo-stream-designer" {

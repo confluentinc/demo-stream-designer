@@ -63,6 +63,14 @@ variable "mongodbatlas_project_name" {
   default     = "demo-stream-designer"
 }
 
+# Atlas Project Name
+variable "mongodbatlas_project_name" {
+  type        = string
+  description = "MongoDB Atlas Project Name"
+  default     = "demo-stream-designer"
+}
+
+
 variable "mongodbatlas_region" {
   description = "MongoDB Atlas region https://www.mongodb.com/docs/atlas/reference/amazon-aws/#std-label-amazon-aws"
   type        = string
