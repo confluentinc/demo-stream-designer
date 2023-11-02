@@ -175,13 +175,8 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Run the script to enable change data capture (CDC) on all tables of the database
    ```bash
-   <<<<<<< HEAD
    cd demo-stream-designer/sql_scripts
    python3 prepare_sqlserver.py
-   =======
-   cd demo-stream-designer
-   python3 sql_scripts/prepare_sqlserver.py
-   >>>>>>> master
    ```
 
 ## Prepare streams
