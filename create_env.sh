@@ -1,6 +1,16 @@
-CONFLUENT_CLOUD_EMAIL=<replace>
-CONFLUENT_CLOUD_PASSWORD=<replace>
+#!/bin/bash
 
+accounts_file=".accounts"
+env_file=".env"
+
+# Check if .accounts file exists
+if [ ! -f "$accounts_file" ]; then
+    echo "$accounts_file not found."
+    exit 1
+fi
+
+# Define the environment variable content
+env_content=$(cat <<EOF
 CCLOUD_API_KEY=api-key
 CCLOUD_API_SECRET=api-secret
 CCLOUD_BOOTSTRAP_ENDPOINT=kafka-cluster-endpoint
@@ -19,9 +29,10 @@ MONGO_USERNAME=admin
 MONGO_PASSWORD=db-sd-c0nflu3nt!
 MONGO_ENDPOINT=mongodb-endpoint
 MONGO_DATABASE_NAME=demo-stream-designer
+EOF
+)
 
-export TF_VAR_confluent_cloud_api_key="<replace>"
-export TF_VAR_confluent_cloud_api_secret="<replace>"
-export TF_VAR_mongodbatlas_public_key="<replace>"
-export TF_VAR_mongodbatlas_private_key="<replace>"
-export TF_VAR_mongodbatlas_org_id="<replace>"
+# Combine the environment variable content with .accounts and write to .env
+echo "$env_content" | cat - "$accounts_file" > "$env_file"
+
+echo "Created an environment file named: $env_file"

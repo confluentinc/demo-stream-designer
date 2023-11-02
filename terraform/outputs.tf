@@ -8,9 +8,9 @@ output "mongodbatlas_connection_string" {
   value       = mongodbatlas_cluster.demo-stream-designer.connection_strings[0].standard_srv
 }
 
-output "kafka_cluster_bootsrap_endpoint" {
+output "kafka_cluster_bootsrap_endpoint"{
   description = "The bootstrap endpoint used by Kafka clients to connect to the Kafka cluster."
-  value       = confluent_kafka_cluster.basic.bootstrap_endpoint
+  value = confluent_kafka_cluster.basic.bootstrap_endpoint
 }
 
 output "schema_registry_rest_endpoint" {

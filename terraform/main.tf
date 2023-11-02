@@ -2,15 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.5.0"
+      version = "5.16.2"
     }
     confluent = {
       source  = "confluentinc/confluent"
-      version = "1.47.0"
+      version = "1.51.0"
     }
     mongodbatlas = {
       source  = "mongodb/mongodbatlas"
-      version = "1.10.0"
+      version = "1.12.1"
     }
   }
 }
