@@ -88,3 +88,9 @@ variable "mongodbatlas_database_password" {
   type        = string
   default     = "db-sd-c0nflu3nt!"
 }
+
+variable "tags" {
+  description = "Default tags to attribute to all AWS resources"
+  type        = map(string)
+  default     = {}
+}

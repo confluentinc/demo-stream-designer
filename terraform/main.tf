@@ -35,6 +35,10 @@ provider "confluent" {
 
 provider "aws" {
   region = var.region
+
+  default_tags {
+    tags = var.tags
+  }
 }
 
 # Configure the MongoDB Atlas Provider 
