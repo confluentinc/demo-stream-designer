@@ -42,7 +42,7 @@ provider "aws" {
       cflt_managed_id  = "demo-stream-designer"
       cflt_service     = "demo-stream-designer"
       cflt_partition   = "commercial"
-      cflt_environment = "prod"
+      cflt_environment = "devel"
     }
   }
 }
