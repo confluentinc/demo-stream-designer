@@ -35,6 +35,16 @@ provider "confluent" {
 
 provider "aws" {
   region = var.region
+
+  default_tags {
+    tags = {
+      cflt_managed_by  = "terraform"
+      cflt_managed_id  = "demo-stream-designer"
+      cflt_service     = "demo-stream-designer"
+      cflt_partition   = "commercial"
+      cflt_environment = "prod"
+    }
+  }
 }
 
 # Configure the MongoDB Atlas Provider 
